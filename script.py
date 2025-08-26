@@ -17,7 +17,7 @@ STL_FILES_TO_IMPORT = [
 ]
 
 # --- Caminho do Arquivo de Preset de Configuração ---
-PRESET_FILE_PATH = os.path.join(IMAGES_AND_STL_FOLDER, "Creality K1 Max 0.4 nozzle.creality_printer (1)")
+PRESET_FILE_PATH = os.path.join(IMAGES_AND_STL_FOLDER, "Creality K1 Max 0.4 nozzle.creality_printer")
 
 # --- Nomes das Imagens dos Botões (Capturadas por VOCÊ e salvas em C:\Xbox_Games) ---
 ARQUIVO_BUTTON_IMAGE = os.path.join(IMAGES_AND_STL_FOLDER, 'open_file_initial_button.png') 
@@ -72,43 +72,6 @@ try:
 
     print("Iniciando a automação do fluxo STL -> Fatiamento -> Impressão no slicer...")
 
-    # --- LOOP PARA CARREGAR MÚLTIPLOS ARQUIVOS STL ---
-    for stl_file in STL_FILES_TO_IMPORT:
-        print(f"\nCarregando arquivo STL: {os.path.basename(stl_file)}")
-        if find_and_click(ARQUIVO_BUTTON_IMAGE): 
-            time.sleep(1.5) 
-            
-            if find_and_click(IMPORTAR_MENU_ITEM_FIRST_IMAGE): 
-                time.sleep(1.5) 
-                
-                if find_and_click(IMPORTAR_STL_SPECIFIC_ITEM_IMAGE): 
-                    time.sleep(2.5) 
-                    
-                    print(f"Digitando o caminho completo do arquivo STL: {stl_file}") 
-                    pyautogui.typewrite(stl_file) 
-                    pyautogui.press('enter') 
-                    time.sleep(15) 
-                    print(f"Arquivo '{os.path.basename(stl_file)}' carregado (esperamos!).") 
-                else:
-                    print(f"Falha ao encontrar o item 'Importar 3MF/STL/...' ('{os.path.basename(IMPORTAR_STL_SPECIFIC_ITEM_IMAGE)}').") 
-                    break 
-            else:
-                print(f"Falha ao encontrar o item de menu 'Importar' ('{os.path.basename(IMPORTAR_MENU_ITEM_FIRST_IMAGE)}').") 
-                break
-        else:
-            print(f"Falha ao encontrar o botão/menu 'Arquivo' ('{os.path.basename(ARQUIVO_BUTTON_IMAGE)}').") 
-            break
-    
-    # --- Continuação após o carregamento de TODOS os STLs ---
-    print("\nTodos os arquivos STL carregados (esperamos!).")
-
-    # --- Clicar no botão "Arranjar" / "Organizar" Objetos na Mesa (Primeira vez, após carregar STLs) ---
-    if find_and_click(ARRANGE_BUTTON_IMAGE):
-        time.sleep(5) 
-        print("Objetos arranjados na mesa (primeira vez, após carregar STLs!).")
-    else:
-        print(f"Falha ao encontrar o botão de Arranjar Objetos (primeira vez) ('{os.path.basename(ARRANGE_BUTTON_IMAGE)}').")
-
     # --- INÍCIO DA SEÇÃO: IMPORTAR/SELECIONAR CONFIGURAÇÕES ---
     print("\nIniciando a importação/seleção de configurações...")
     
@@ -139,6 +102,43 @@ try:
     else:
         print(f"Falha ao encontrar o botão/menu 'Arquivo' novamente ('{os.path.basename(ARQUIVO_BUTTON_IMAGE)}').")
     # --- FIM DA SEÇÃO DE CONFIGURAÇÕES ---
+
+    # --- LOOP PARA CARREGAR MÚLTIPLOS ARQUIVOS STL ---
+    for stl_file in STL_FILES_TO_IMPORT:
+        print(f"\nCarregando arquivo STL: {os.path.basename(stl_file)}")
+        if find_and_click(ARQUIVO_BUTTON_IMAGE): 
+            time.sleep(1.5) 
+            
+            if find_and_click(IMPORTAR_MENU_ITEM_FIRST_IMAGE): 
+                time.sleep(1.5) 
+                
+                if find_and_click(IMPORTAR_STL_SPECIFIC_ITEM_IMAGE): 
+                    time.sleep(2.5) 
+                    
+                    print(f"Digitando o caminho completo do arquivo STL: {stl_file}") 
+                    pyautogui.typewrite(stl_file) 
+                    pyautogui.press('enter') 
+                    time.sleep(15) 
+                    print(f"Arquivo '{os.path.basename(stl_file)}' carregado (esperamos!).") 
+                else:
+                    print(f"Falha ao encontrar o item 'Importar 3MF/STL/...' ('{os.path.basename(IMPORTAR_STL_SPECIFIC_ITEM_IMAGE)}').") 
+                    break 
+            else:
+                print(f"Falha ao encontrar o item de menu 'Importar' ('{os.path.basename(IMPORTAR_MENU_ITEM_FIRST_IMAGE)}').") 
+                break
+        else:
+            print(f"Falha ao encontrar o botão/menu 'Arquivo' ('{os.path.basename(ARQUIVO_BUTTON_IMAGE)}').") 
+            break
+    
+    # --- Continuação após o carregamento de TODOS os STLs ---
+    print("\nTodos os arquivos STL carregados (esperamos!).")
+
+   # --- Clicar no botão "Arranjar" / "Organizar" Objetos na Mesa (Primeira vez, após carregar STLs) ---
+   # if find_and_click(ARRANGE_BUTTON_IMAGE):
+   #    time.sleep(5) 
+   #     print("Objetos arranjados na mesa (primeira vez, após carregar STLs!).")
+   # else:
+   #     print(f"Falha ao encontrar o botão de Arranjar Objetos (primeira vez) ('{os.path.basename(ARRANGE_BUTTON_IMAGE)}').")
 
     # --- Clicar no botão "Arranjar" / "Organizar" Objetos na Mesa (Segunda vez, após importar config) ---
     if find_and_click(ARRANGE_BUTTON_IMAGE):
@@ -179,13 +179,13 @@ except FileNotFoundError:
     print(f"Erro: Slicer não encontrado em '{SLICER_PATH}'. Verifique o caminho. O arquivo 'CrealityPrint.exe' realmente existe lá?") 
 except Exception as e:
     print(f"Ocorreu um erro inesperado durante a automação: {e}") 
-finally:
-    if slicer_process is not None and slicer_process.poll() is None: 
-        print("\nFechando o slicer...")
-        slicer_process.terminate()
-        time.sleep(5) 
-        if slicer_process.poll() is None: 
-            slicer_process.kill() 
-        print("Slicer fechado.")
-    elif slicer_process is None:
-        print("Slicer não foi iniciado ou já estava fechado.")
+#finally:
+#   if slicer_process is not None and slicer_process.poll() is None: 
+#        print("\nFechando o slicer...")
+#        slicer_process.terminate()
+#        time.sleep(5) 
+#        if slicer_process.poll() is None: 
+#            slicer_process.kill() 
+#        print("Slicer fechado.")
+#    elif slicer_process is None:
+#        print("Slicer não foi iniciado ou já estava fechado.")
