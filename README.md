@@ -1,93 +1,326 @@
-# metaversoufg-printerinterface
+# 🖨️ Metaverso UFG - Interface de Impressora 3D
 
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://python.org)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-active-success.svg)]()
 
+Uma interface automatizada para integração entre o ecossistema Metaverso UFG e impressoras 3D Creality K1 Max, permitindo impressão automática de objetos 3D diretamente da API do Metaverso.
 
-## Getting started
+## 📋 Índice
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Características](#características)
+- [Tecnologias](#tecnologias)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Uso](#uso)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [API](#api)
+- [Troubleshooting](#troubleshooting)
+- [Contribuição](#contribuição)
+- [Licença](#licença)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 🎯 Sobre o Projeto
 
-## Add your files
+O **Metaverso UFG - Interface de Impressora 3D** é um sistema automatizado que:
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+- 🔄 **Monitora** a fila de impressão da API do Metaverso UFG
+- 📦 **Converte** automaticamente arquivos GLB para STL
+- 🖨️ **Automatiza** o processo de impressão no Creality Print
+- 📊 **Registra** logs detalhados de todo o processo
+- 🔧 **Configura** automaticamente parâmetros de impressão
+
+## ✨ Características
+
+### 🚀 Funcionalidades Principais
+
+- **Integração com API**: Conexão direta com a API do Metaverso UFG
+- **Conversão de Formatos**: GLB → STL automática usando Trimesh
+- **Automação de UI**: Controle automatizado do Creality Print via PyAutoGUI
+- **Modo Teste**: Funcionalidade local para desenvolvimento e testes
+- **Logging Centralizado**: Sistema completo de logs para monitoramento
+- **Tratamento de Erros**: Gerenciamento robusto de exceções
+
+### 🎮 Automação Completa
+
+1. **Detecção de Objetos**: Monitora fila de impressão da API
+2. **Download Automático**: Baixa arquivos 3D da nuvem
+3. **Conversão de Formato**: Processa GLB para STL
+4. **Configuração de Impressora**: Aplica presets de impressão
+5. **Envio para Impressão**: Inicia processo na Creality K1 Max
+
+## 🛠️ Tecnologias
+
+### Linguagens e Frameworks
+- **Python 3.8+**: Linguagem principal
+- **Requests**: Comunicação com APIs REST
+- **PyAutoGUI**: Automação de interface gráfica
+- **Trimesh**: Processamento de modelos 3D
+
+### Ferramentas e Serviços
+- **Creality Print 6.2**: Software de fatiamento
+- **API Metaverso UFG**: Backend do ecossistema
+- **Git**: Controle de versão
+
+## 📋 Pré-requisitos
+
+### Software Necessário
+
+```bash
+# Python 3.8 ou superior
+python --version
+
+# Creality Print 6.2 instalado em:
+# C:\Program Files\Creality\Creality Print 6.2\CrealityPrint.exe
+```
+
+### Hardware Compatível
+
+- **Impressora**: Creality K1 Max
+- **Sistema**: Windows 10/11
+- **RAM**: Mínimo 4GB recomendado
+- **Conexão**: Internet para acesso à API
+
+## 🚀 Instalação
+
+### 1. Clone o Repositório
+
+```bash
+git clone https://gitlab.com/ivato/immersion/metaversoufg-printerinterface.git
+cd metaversoufg-printerinterface
+```
+
+### 2. Crie um Ambiente Virtual
+
+```bash
+python -m venv venv_k1max_automation
+venv_k1max_automation\Scripts\activate  # Windows
+```
+
+### 3. Instale as Dependências
+
+```bash
+pip install requests pyautogui trimesh numpy
+```
+
+### 4. Verifique a Instalação
+
+```bash
+python script.py --test
+```
+
+## ⚙️ Configuração
+
+### 1. Configuração da API
+
+Edite as credenciais no `script.py`:
+
+```python
+# Configurações da API
+AUTH_URL = "https://mverso.space/v1/auth/login"
+AUTH_PAYLOAD = {
+    "email": "seu_email@example.com",
+    "password": "sua_senha"
+}
+```
+
+### 2. Configuração de Caminhos
+
+Verifique se os caminhos estão corretos:
+
+```python
+# Caminho do Creality Print
+SLICER_PATH = r"C:\Program Files\Creality\Creality Print 6.2\CrealityPrint.exe"
+
+# Pasta do projeto
+PROJECT_ROOT = r"C:\Users\USER\Documents\metaversoufg-printerinterface"
+```
+
+### 3. Modo de Operação
+
+Para **desenvolvimento/teste**:
+```python
+USE_LOCAL_FILE = True
+LOCAL_FILE_PATH = os.path.join(MODELS_FOLDER, "seu_arquivo_teste.glb")
+```
+
+Para **produção**:
+```python
+USE_LOCAL_FILE = False
+```
+
+## 🎮 Uso
+
+### Execução Básica
+
+```bash
+# Ativar ambiente virtual
+venv_k1max_automation\Scripts\activate
+
+# Executar o script principal
+python script.py
+```
+
+### Modo Teste Local
+
+1. Coloque um arquivo `.glb` na pasta `models/`
+2. Configure `USE_LOCAL_FILE = True`
+3. Execute o script
+
+### Modo Produção
+
+1. Configure suas credenciais da API
+2. Configure `USE_LOCAL_FILE = False`
+3. Execute o script
+4. O sistema irá monitorar a fila automaticamente
+
+### Logs de Execução
+
+Os logs são exibidos em tempo real:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/ivato/immersion/metaversoufg-printerinterface.git
-git branch -M main
-git push -uf origin main
+2025-01-15 10:30:15 - INFO - Tentando autenticar na API do Metaverso...
+2025-01-15 10:30:16 - INFO - Autenticação bem-sucedida! Token obtido.
+2025-01-15 10:30:17 - INFO - Verificando a fila de impressão da API...
+2025-01-15 10:30:18 - INFO - Iniciando conversão de GLB para STL: modelo.glb
+2025-01-15 10:30:20 - INFO - Conversão concluída: modelo.stl
 ```
 
-## Integrate with your tools
+## 📁 Estrutura do Projeto
 
-- [ ] [Set up project integrations](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface/-/settings/integrations)
+```
+metaversoufg-printerinterface/
+├── 📁 assets/                      # Assets da interface
+│   ├── 🖼️ *.png                   # Imagens dos botões do Creality Print
+│   └── ⚙️ metaverso_PLA.creality_printer  # Preset de impressão
+├── 📁 models/                      # Modelos 3D
+│   ├── 📦 *.glb                   # Arquivos GLB baixados
+│   ├── 🔺 *.stl                   # Arquivos STL convertidos
+│   └── 🧪 charmander(1).glb       # Arquivo de teste
+├── 🐍 script.py                   # Script principal
+├── ⚙️ config.py                   # Configurações
+├── 🧪 test_*.py                   # Scripts de teste
+├── 📚 README.md                   # Este arquivo
+└── 📄 requirements.txt            # Dependências Python
+```
 
-## Collaborate with your team
+## 🔗 API
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### Endpoints Utilizados
 
-## Test and Deploy
+#### Autenticação
+```http
+POST https://mverso.space/v1/auth/login
+Content-Type: application/json
 
-Use the built-in continuous integration in GitLab.
+{
+  "email": "usuario@example.com",
+  "password": "senha"
+}
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+#### Fila de Impressão
+```http
+GET https://mverso.space/v1/printer/printable?with_file=true
+Authorization: Bearer {token}
+```
 
-***
+#### Atualização de Status
+```http
+PATCH https://mverso.space/v1/printer/print/{object_id}
+Authorization: Bearer {token}
+```
 
-# Editing this README
+### Formato de Dados
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```json
+{
+  "object_id": "uuid-do-objeto",
+  "object_file": "base64-encoded-glb-file",
+  "created_at": "2025-01-15T10:30:00Z"
+}
+```
 
-## Suggestions for a good README
+## 🔧 Troubleshooting
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Problemas Comuns
 
-## Name
-Choose a self-explaining name for your project.
+#### ❌ Erro de Autenticação
+```
+Erro fatal de autenticação: 401 Unauthorized
+```
+**Solução**: Verifique suas credenciais no `script.py`
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+#### ❌ Creality Print não encontrado
+```
+Erro: Slicer não encontrado em 'C:\Program Files\...'
+```
+**Solução**: Atualize o caminho `SLICER_PATH` no script
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+#### ❌ Erro de conversão GLB→STL
+```
+Erro na conversão de GLB para STL: [...]
+```
+**Solução**: Verifique se o arquivo GLB não está corrompido
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+#### ❌ Elementos da UI não encontrados
+```
+Erro: Elemento 'botão.png' não encontrado na tela
+```
+**Solução**: 
+1. Verifique se o Creality Print está aberto
+2. Capture novos screenshots dos botões se necessário
+3. Ajuste os valores de `confidence` no código
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Logs Detalhados
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Para debug avançado, altere o nível de log:
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```python
+logging.basicConfig(level=logging.DEBUG)
+```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Suporte
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Para suporte técnico:
+- 📧 Email: suporte@metaversoufg.com
+- 🐛 Issues: [GitLab Issues](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface/-/issues)
+- 📖 Wiki: [Documentação Completa](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface/-/wikis/home)
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## 🤝 Contribuição
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Contribuições são bem-vindas! Para contribuir:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+1. **Fork** o projeto
+2. **Crie** uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. **Commit** suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** para a branch (`git push origin feature/AmazingFeature`)
+5. **Abra** um Pull Request
 
-## License
-For open source projects, say how it is licensed.
+### Diretrizes de Contribuição
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- 📝 Siga o padrão de código existente
+- ✅ Adicione testes para novas funcionalidades
+- 📚 Atualize a documentação quando necessário
+- 🔍 Teste localmente antes de submeter
+
+## 📄 Licença
+
+Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
+
+## 👥 Autores
+
+- **Equipe Metaverso UFG** - *Desenvolvimento inicial* - [UFG](https://github.com/metaversoufg)
+
+## 📞 Contato
+
+- **Projeto**: [https://gitlab.com/ivato/immersion/metaversoufg-printerinterface](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface)
+- **Website**: [https://metaversoufg.com](https://metaversoufg.com)
+- **Email**: contato@metaversoufg.com
+
+---
+
+⭐ **Se este projeto foi útil para você, considere dar uma estrela!**
+
+*Desenvolvido com ❤️ pela equipe Metaverso UFG*

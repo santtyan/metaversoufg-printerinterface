@@ -1,0 +1,17 @@
+# Metaverso UFG - Interface de Impressora 3D
+# Dependências Python necessárias
+
+# Core dependencies
+requests>=2.31.0
+pyautogui>=0.9.54
+trimesh>=4.0.0
+numpy>=1.24.0
+
+# Optional dependencies for enhanced functionality
+pillow>=10.0.0  # Para processamento de imagens (usado pelo PyAutoGUI)
+opencv-python>=4.8.0  # Para processamento adicional de imagens
+
+# Development dependencies (opcional)
+pytest>=7.4.0  # Para testes
+black>=23.0.0  # Para formatação de código
+flake8>=6.0.0  # Para linting
