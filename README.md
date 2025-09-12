@@ -6,21 +6,6 @@
 
 Uma interface automatizada para integração entre o ecossistema Metaverso UFG e impressoras 3D Creality K1 Max, permitindo impressão automática de objetos 3D diretamente da API do Metaverso.
 
-## 📋 Índice
-
-- [Sobre o Projeto](#sobre-o-projeto)
-- [Características](#características)
-- [Tecnologias](#tecnologias)
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação](#instalação)
-- [Configuração](#configuração)
-- [Uso](#uso)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [API](#api)
-- [Troubleshooting](#troubleshooting)
-- [Contribuição](#contribuição)
-- [Licença](#licença)
-
 ## 🎯 Sobre o Projeto
 
 O **Metaverso UFG - Interface de Impressora 3D** é um sistema automatizado que:
@@ -280,14 +265,6 @@ Para debug avançado, altere o nível de log:
 ```python
 logging.basicConfig(level=logging.DEBUG)
 ```
-
-### Suporte
-
-Para suporte técnico:
-- 📧 Email: suporte@metaversoufg.com
-- 🐛 Issues: [GitLab Issues](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface/-/issues)
-- 📖 Wiki: [Documentação Completa](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface/-/wikis/home)
-
 ## 🤝 Contribuição
 
 Contribuições são bem-vindas! Para contribuir:
@@ -305,22 +282,12 @@ Contribuições são bem-vindas! Para contribuir:
 - 📚 Atualize a documentação quando necessário
 - 🔍 Teste localmente antes de submeter
 
-## 📄 Licença
-
-Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
 
 ## 👥 Autores
 
-- **Equipe Metaverso UFG** - *Desenvolvimento inicial* - [UFG](https://github.com/metaversoufg)
+- **Yan Santos** - *Desenvolvimento inicial* - [UFG](https://github.com/santtyan)
 
 ## 📞 Contato
 
 - **Projeto**: [https://gitlab.com/ivato/immersion/metaversoufg-printerinterface](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface)
-- **Website**: [https://metaversoufg.com](https://metaversoufg.com)
-- **Email**: contato@metaversoufg.com
-
----
-
-⭐ **Se este projeto foi útil para você, considere dar uma estrela!**
-
-*Desenvolvido com ❤️ pela equipe Metaverso UFG*
+- **Email**: leiteyan@discente.ufg.br
