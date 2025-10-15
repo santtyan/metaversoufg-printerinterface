@@ -171,7 +171,7 @@ metaversoufg-printerinterface/
 ├── 📁 src/                           # Código fonte principal
 │   ├── 📁 k1max/                     # Sistema controle K1 Max
 │   │   ├── k1max_monitor.py         # Monitor WebSocket
-│   │   ├── k1max_controller.py      # 5 funções Professor Hugo
+│   │   ├── k1max_controller.py      # Funções 
 │   │   └── test_k1max.py            # Testes automatizados
 │   ├── 📁 adapters/                  # Adaptadores externos
 │   │   └── metaverso_api_client.py  # Cliente API Metaverso
@@ -357,7 +357,7 @@ python script.py C:/path/to/test.glb
 
 | Componente | Status | Testado |
 |------------|--------|---------|
-| API Client (Guilherme) | ✅ Completo | ✅ Sim |
+| API Client | ✅ Completo | ✅ Sim |
 | WebSocket Monitor | ✅ Completo | ⏳ Aguarda hardware |
 | is_printing() | ✅ Completo | ⏳ Aguarda hardware |
 | is_ready() | ✅ Completo | ⏳ Aguarda hardware |
