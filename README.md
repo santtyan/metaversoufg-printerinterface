@@ -17,7 +17,7 @@ O **Metaverso UFG - Interface de Impressora 3D** oferece duas interfaces complem
 
 ## ✨ Funcionalidades
 
-### 🌐 Sistema 1: API Metaverso (Guilherme)
+### 🌐 Sistema 1: API Metaverso
 
 Menu interativo para gerenciar fila de objetos 3D:
 
@@ -26,7 +26,7 @@ Menu interativo para gerenciar fila de objetos 3D:
 - ✅ Devolver objetos para a fila
 - ✅ Autenticação automática com retry
 
-### 🖨️ Sistema 2: Controle K1 Max (Professor Hugo)
+### 🖨️ Sistema 2: Controle K1 Max 
 
 5 funções de controle da impressora:
 
@@ -171,7 +171,7 @@ metaversoufg-printerinterface/
 ├── 📁 src/                           # Código fonte principal
 │   ├── 📁 k1max/                     # Sistema controle K1 Max
 │   │   ├── k1max_monitor.py         # Monitor WebSocket
-│   │   ├── k1max_controller.py      # 5 funções Professor Hugo
+│   │   ├── k1max_controller.py      # Funções 
 │   │   └── test_k1max.py            # Testes automatizados
 │   ├── 📁 adapters/                  # Adaptadores externos
 │   │   └── metaverso_api_client.py  # Cliente API Metaverso
@@ -357,7 +357,7 @@ python script.py C:/path/to/test.glb
 
 | Componente | Status | Testado |
 |------------|--------|---------|
-| API Client (Guilherme) | ✅ Completo | ✅ Sim |
+| API Client | ✅ Completo | ✅ Sim |
 | WebSocket Monitor | ✅ Completo | ⏳ Aguarda hardware |
 | is_printing() | ✅ Completo | ⏳ Aguarda hardware |
 | is_ready() | ✅ Completo | ⏳ Aguarda hardware |
@@ -377,8 +377,8 @@ python script.py C:/path/to/test.glb
 ## 📝 Changelog
 
 ### v2.0.0 (2025-10-15)
-- ➕ Sistema controle K1 Max (5 funções Professor Hugo)
-- ➕ Cliente API Metaverso (menu Guilherme)
+- ➕ Sistema controle K1 Max 
+- ➕ Cliente API Metaverso 
 - ➕ Monitor WebSocket tempo real
 - 🔧 Reorganização estrutura (src/, legacy/, config/)
 - 🔧 Script.py aceita argumentos via subprocess
