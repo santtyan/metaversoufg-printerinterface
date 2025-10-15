@@ -1,0 +1,8 @@
+api:
+  base_url: "https://metaverso.medialab.ufg.br/v1"
+  timeout: 30
+
+credentials:
+  email: "scanner@example.com"
+  username: "scanner"
+  password: "scanner"

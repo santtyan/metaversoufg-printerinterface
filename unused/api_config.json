@@ -1,0 +1,8 @@
+{
+  "base_url": "https://metaverso.medialab.ufg.br/v1",
+  "payload": {
+    "email": "scanner@example.com",
+    "password": "scanner"
+  },
+  "token_key": "accessToken"
+}

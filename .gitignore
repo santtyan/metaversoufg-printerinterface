@@ -1,0 +1,36 @@
+**Conteúdo do .gitignore:**
+```
+# Ambientes virtuais
+venv_k1max_automation/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Credenciais
+token
+*.token
+config_local.yaml
+
+# Arquivos temporários
+*.stl
+*.gcode
+models/*.stl
+models/*.gcode
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
