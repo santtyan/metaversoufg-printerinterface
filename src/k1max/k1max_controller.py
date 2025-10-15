@@ -1,6 +1,6 @@
 # src/k1max/k1max_controller.py
 """
-K1 Max Controller - Implementa as 5 funções do Professor Hugo
+K1 Max Controller - Implementa as 5 funções
 1. is_printing() - checar se está imprimindo
 2. is_ready() - checar se está livre
 3. set_material() - configurar material
@@ -11,10 +11,15 @@ K1 Max Controller - Implementa as 5 funções do Professor Hugo
 import sys
 import subprocess
 from pathlib import Path
-from k1max.k1max_monitor import K1MaxMonitor
+from .k1max_monitor import K1MaxMonitor
 
 class K1MaxController:
-    def __init__(self, ip="192.168.20.138"):
+    def __init__(self, config_path="config/config.yaml"):
+        import yaml
+        with open(config_path) as f:
+            cfg = yaml.safe_load(f)
+        
+        ip = cfg['printer']['ip']
         self.monitor = K1MaxMonitor(ip)
         self.project_root = Path(__file__).parent.parent.parent
     

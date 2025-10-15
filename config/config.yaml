@@ -6,3 +6,11 @@ credentials:
   email: "scanner@example.com"
   username: "scanner"
   password: "scanner"
+
+printer:
+  ip: "192.168.20.175"
+  websocket_port: 9999
+  http_port: 80
+
+logging:
+  level: "INFO"
