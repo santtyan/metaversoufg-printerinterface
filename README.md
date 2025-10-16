@@ -19,9 +19,11 @@ Sistema de controle e monitoramento para impressoras Creality K1 Max, oferecendo
 
 1. **`is_printing()`** - Verifica se está imprimindo (WebSocket)
 2. **`is_ready()`** - Verifica se está livre e pronta (WebSocket)
-3. **`set_material(material)`** - Configura tipo de material
-4. **`set_temperature(nozzle, bed)`** - Configura temperaturas
-5. **`send_print_job(file)`** - Envia arquivo para impressão
+3. **`set_material(material)`** - Valida e prepara configuração de material
+4. **`set_temperature(nozzle, bed)`** - Valida temperaturas para aplicação
+5. **`send_print_job(file)`** - Envia arquivo para impressão (aplica configs 3-4)
+
+**Nota Técnica:** Funções 1-2 leem estado via WebSocket em tempo real. Funções 3-4 validam parâmetros aplicados durante `send_print_job()` via GUI automation (WebSocket K1 Max é read-only).
 
 ### 🌐 Integração API Metaverso
 
@@ -110,11 +112,11 @@ controller = K1MaxController()
 
 # Verificar disponibilidade
 if controller.is_ready():
-    # Configurar impressão
+    # Preparar configurações
     controller.set_material('PLA')
     controller.set_temperature(210, 60)
     
-    # Enviar arquivo
+    # Enviar arquivo (aplica configurações)
     controller.send_print_job('models/object.glb')
 ```
 
@@ -186,6 +188,8 @@ ping_interval=None  # CRÍTICO: K1 Max não responde PING frames
 - `nozzleTemp`, `bedTemp0`: Temperaturas (string)
 - `printFileName`: Arquivo atual (material no nome: `_PLA_`)
 
+**Limitação:** Protocolo é read-only. Comandos de escrita não descobertos via engenharia reversa. HTTP upload testado (erro 500). GUI automation necessária para comandos.
+
 ## 🧪 Testes
 ```bash
 # Testes unitários (8/8 passing)
@@ -209,10 +213,10 @@ pytest tests/integration/
 
 | Função | Método | Testado |
 |--------|--------|---------|
-| `is_printing()` | WebSocket | ✅ Lab |
-| `is_ready()` | WebSocket | ✅ Lab |
-| `set_material()` | Preset | ✅ |
-| `set_temperature()` | Preset | ✅ |
+| `is_printing()` | WebSocket (read) | ✅ Lab |
+| `is_ready()` | WebSocket (read) | ✅ Lab |
+| `set_material()` | Validação + Preset | ✅ |
+| `set_temperature()` | Validação + Preset | ✅ |
 | `send_print_job()` | GUI Automation | ✅ |
 
 ## 🔧 Troubleshooting
@@ -245,7 +249,7 @@ ERROR: Elemento não encontrado
 
 ### v2.0.0 (2025-10-16)
 - ✅ Implementa 5 funções (controller, monitor)
-- ✅ WebSocket protocol descoberto via engenharia reversa
+- ✅ WebSocket protocol descoberto via engenharia reversa (read-only)
 - ✅ Integração API Metaverso (8 métodos)
 - ✅ 8 testes unitários (100% passing)
 - 🔧 Reorganização estrutura (src/, tests/, docs/)
