@@ -1,0 +1,14 @@
+# Filtro 1: Todo tráfego K1 Max
+ip.addr == 200.137.221.11
+
+# Filtro 2: Apenas WebSocket
+tcp.port == 9999 and websocket
+
+# Filtro 3: WebSocket + HTTP
+(tcp.port == 9999 and websocket) or (tcp.port == 80)
+
+# Filtro 4: Handshake WebSocket
+websocket.opcode == 1
+
+# Filtro 5: Apenas dados (sem control frames)
+websocket.opcode == 0x01 or websocket.opcode == 0x02

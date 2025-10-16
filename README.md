@@ -1,406 +1,289 @@
-# 🖨️ Metaverso UFG - Interface de Impressora 3D
+# 🖨️ K1 Max Controller
 
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
 
-Sistema automatizado para integração entre o ecossistema Metaverso UFG e impressoras 3D Creality K1 Max, permitindo controle completo via API e automação GUI.
+Biblioteca Python para controle da impressora 3D Creality K1 Max integrada com API Metaverso UFG.
 
 ## 🎯 Sobre o Projeto
 
-O **Metaverso UFG - Interface de Impressora 3D** oferece duas interfaces complementares:
-
-- 🔌 **API Client**: Gerenciamento de fila de impressão na nuvem
-- 🖨️ **K1 Max Controller**: Controle direto da impressora física
-- 🤖 **GUI Automation**: Automação completa do Creality Print
-- 📊 **Monitoramento WebSocket**: Status em tempo real da impressora
+Sistema de controle e monitoramento para impressoras Creality K1 Max, oferecendo interface programática via WebSocket e GUI automation, integrado ao ecossistema Metaverso UFG.
 
 ## ✨ Funcionalidades
 
-### 🌐 Sistema 1: API Metaverso
+### 🖨️ Controle K1 Max
 
-Menu interativo para gerenciar fila de objetos 3D:
-
-- ✅ Listar objetos disponíveis para impressão
-- ✅ Marcar objetos como "imprimindo"
-- ✅ Devolver objetos para a fila
-- ✅ Autenticação automática com retry
-
-### 🖨️ Sistema 2: Controle K1 Max 
-
-5 funções de controle da impressora:
+5 funções de controle implementadas:
 
 1. **`is_printing()`** - Verifica se está imprimindo (WebSocket)
 2. **`is_ready()`** - Verifica se está livre e pronta (WebSocket)
 3. **`set_material(material)`** - Configura tipo de material
 4. **`set_temperature(nozzle, bed)`** - Configura temperaturas
-5. **`send_print_job(file)`** - Envia arquivo para impressão (workflow completo)
+5. **`send_print_job(file)`** - Envia arquivo para impressão
 
-### 🤖 Sistema 3: GUI Automation (Legacy)
+### 🌐 Integração API Metaverso
 
-Automação completa do Creality Print:
+- ✅ Autenticação automática com retry
+- ✅ Gerenciamento de fila de impressão
+- ✅ Sincronização de status
 
-- 📦 Conversão GLB → STL automática
-- 🎯 Importação de modelos e presets
-- ⚙️ Fatiamento automatizado
-- 📤 Envio para impressora com confirmação
+### 📊 Monitoramento WebSocket
+
+- ✅ Telemetria em tempo real
+- ✅ Status de impressão
+- ✅ Temperaturas (nozzle/bed)
+- ✅ Progresso e layers
 
 ## 🛠️ Tecnologias
 
-- **Python 3.13**: Linguagem principal
-- **WebSocket**: Comunicação tempo real com impressora
-- **PyAutoGUI**: Automação de interface gráfica
-- **Trimesh**: Processamento de modelos 3D
-- **Requests**: Comunicação com APIs REST
-- **PyYAML**: Gerenciamento de configurações
+- **Python 3.13+**: Linguagem principal
+- **WebSocket**: Protocolo tempo real (porta 9999)
+- **PyAutoGUI**: Automação GUI
+- **Trimesh**: Processamento 3D
+- **Requests**: Cliente HTTP
+- **PyYAML**: Gerenciamento configuração
 
 ## 📋 Pré-requisitos
 
 ### Software
 ```bash
-# Python 3.13 ou superior
-python --version
+python --version  # 3.13+
+```
 
-# Creality Print 6.2 instalado em:
+**Creality Print 6.2:**
+```
 C:\Program Files\Creality\Creality Print 6.2\CrealityPrint.exe
 ```
 
 ### Hardware
 
-- **Impressora**: Creality K1 Max
-- **Conexão**: Impressora na mesma rede (porta 9999 para WebSocket)
-- **Sistema**: Windows 10/11
-- **RAM**: Mínimo 4GB
+- Creality K1 Max na rede
+- Windows 10/11
+- RAM mínima: 4GB
 
 ## 🚀 Instalação
 
-### 1. Clone o Repositório
+### Via pip (recomendado)
 ```bash
 git clone https://gitlab.com/ivato/immersion/metaversoufg-printerinterface.git
 cd metaversoufg-printerinterface
+pip install -e .
 ```
 
-### 2. Crie o Ambiente Virtual
+### Manual
 ```bash
 python -m venv venv_k1max_automation
 venv_k1max_automation\Scripts\activate
+pip install -r requirements.txt
 ```
 
-### 3. Instale Dependências
+### Configuração
 ```bash
-pip install requests pyautogui trimesh numpy pyyaml websockets
+cp config/config.example.yaml config/config.yaml
+# Editar config.yaml com suas credenciais
 ```
-
-### 4. Configure Credenciais
-
-Edite `config/config.yaml`:
 ```yaml
 api:
-  base_url: "https://mverso.space"
-  auth:
-    email: "seu_email@example.com"
-    password: "sua_senha"
+  base_url: "https://metaverso.medialab.ufg.br/v1"
+
+credentials:
+  email: "seu_email@example.com"
+  username: "seu_usuario"
+  password: "sua_senha"
 
 printer:
-  ip: "192.168.20.138"  # IP da sua K1 Max
-  port: 9999
+  ip: "192.168.20.175"
+  websocket_port: 9999
 ```
 
 ## 🎮 Uso
 
-### Sistema 1: Menu API 
-```bash
-# Ativar ambiente virtual
-venv_k1max_automation\Scripts\activate
-
-# Executar menu interativo
-cd src
-python test_menu.py
-```
-
-**Menu:**
-```
-=== METAVERSO UFG - PRINTER API CLIENT ===
-1. Listar objetos disponíveis para impressão
-2. Marcar objeto como "imprimindo"
-3. Devolver objeto para fila
-4. Sair
-```
-
----
-
-### Sistema 2: Controle K1 Max 
-
-#### Teste Automatizado
-```bash
-cd src
-python k1max/test_k1max.py
-```
-
-#### Uso Programático
+### Exemplo Básico
 ```python
-from k1max.k1max_controller import K1MaxController
+from src.k1max.k1max_controller import K1MaxController
 
 controller = K1MaxController()
 
-# Verificar status
+# Verificar disponibilidade
 if controller.is_ready():
-    print("Impressora pronta!")
+    # Configurar impressão
+    controller.set_material('PLA')
+    controller.set_temperature(210, 60)
     
-# Configurar impressão
-controller.set_material("PLA")
-controller.set_temperature(210, 60)
-
-# Enviar para impressão (workflow completo ~90s)
-success = controller.send_print_job('C:/caminho/modelo.glb')
+    # Enviar arquivo
+    controller.send_print_job('models/object.glb')
 ```
 
----
-
-### Sistema 3: GUI Automation (Legacy)
-
-Chamado automaticamente por `send_print_job()`, mas pode ser executado manualmente:
-```bash
-cd legacy
-python script.py C:/caminho/modelo.glb
-```
-
-## 📁 Estrutura do Projeto
-```
-metaversoufg-printerinterface/
-├── 📁 src/                           # Código fonte principal
-│   ├── 📁 k1max/                     # Sistema controle K1 Max
-│   │   ├── k1max_monitor.py         # Monitor WebSocket
-│   │   ├── k1max_controller.py      # Funções 
-│   │   └── test_k1max.py            # Testes automatizados
-│   ├── 📁 adapters/                  # Adaptadores externos
-│   │   └── metaverso_api_client.py  # Cliente API Metaverso
-│   └── test_menu.py                  # Menu interativo API
-├── 📁 legacy/                        # GUI Automation
-│   └── script.py                     # Automação Creality Print
-├── 📁 config/                        # Configurações
-│   └── config.yaml                   # Credenciais e settings
-├── 📁 assets/                        # Assets automação
-│   ├── 🖼️ *.png                     # Screenshots botões
-│   └── metaverso_PLA.creality_printer # Preset PLA
-├── 📁 models/                        # Modelos 3D
-│   ├── 📦 *.glb                     # Arquivos GLB
-│   └── 🔺 *.stl                     # Arquivos STL
-├── 📁 unused/                        # Scripts antigos
-└── 📚 README.md                      # Este arquivo
-```
-
-## 🔌 APIs e Protocolos
-
-### API Metaverso UFG
-
-#### Autenticação
-```http
-POST https://mverso.space/v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "usuario@example.com",
-  "password": "senha"
-}
-```
-
-#### Fila de Impressão
-```http
-GET https://mverso.space/v1/printer/printable?with_file=true
-Authorization: Bearer {token}
-```
-
-#### Atualização de Status
-```http
-PATCH https://mverso.space/v1/printer/print/{object_id}
-Authorization: Bearer {token}
-```
-
----
-
-### WebSocket K1 Max
+### Monitoramento
 ```python
-# Conexão: ws://{printer_ip}:9999
-
-# Dados recebidos em tempo real:
-{
-  "state": 0,              # 0=idle, 1=printing
-  "nozzleTemp": "210.5",   # Temperatura bico
-  "bedTemp": "60.0",       # Temperatura mesa
-  "printSpeed": "100",     # Velocidade
-  "progress": "0"          # Progresso 0-100
-}
-```
-
-## 📊 Exemplos de Uso
-
-### Exemplo 1: Workflow Completo Automatizado
-```python
-from src.adapters.metaverso_api_client import MetaversoAPIClient
-from src.k1max.k1max_controller import K1MaxController
-import base64
 import time
-
-# Inicializar clientes
-api = MetaversoAPIClient()
-controller = K1MaxController()
-
-# 1. Autenticar
-api.authenticate()
-
-# 2. Pegar primeiro objeto da fila
-objetos = api.get_printable_objects()
-if objetos:
-    obj = objetos[0]
-    obj_id = obj["object_id"]
-    
-    # 3. Verificar se impressora está pronta
-    if controller.is_ready():
-        # 4. Salvar arquivo
-        arquivo = base64.b64decode(obj["object_file"])
-        with open(f"models/{obj_id}.glb", "wb") as f:
-            f.write(arquivo)
-        
-        # 5. Marcar como imprimindo na API
-        api.mark_object_printing(obj_id)
-        
-        # 6. Enviar para impressão
-        controller.send_print_job(f"models/{obj_id}.glb")
-        
-        # 7. Monitorar progresso
-        while controller.is_printing():
-            time.sleep(10)
-            print("Imprimindo...")
-        
-        # 8. Devolver para fila (ou marcar completo)
-        api.mark_object_printable(obj_id)
-```
-
-### Exemplo 2: Monitoramento Simples
-```python
-from src.k1max.k1max_controller import K1MaxController
-import time
-
-controller = K1MaxController()
 
 while True:
     if controller.is_printing():
         print("🖨️ Imprimindo...")
     elif controller.is_ready():
-        print("✅ Pronta para imprimir")
-    else:
-        print("⏳ Aquecendo...")
+        print("✅ Pronta")
     
     time.sleep(5)
 ```
 
+### Workflow Completo
+```python
+from src.adapters.metaverso_api_client import MetaversoClient
+
+# Integração API + Impressora
+api = MetaversoClient()
+controller = K1MaxController()
+
+if api.login():
+    queue = api.get_print_queue()
+    
+    if queue and controller.is_ready():
+        obj = queue[0]
+        controller.send_print_job(obj['file_path'])
+```
+
+## 📁 Estrutura
+```
+metaversoufg-printerinterface/
+├── src/
+│   ├── k1max/                    # Controle K1 Max
+│   │   ├── k1max_controller.py  # 5 funções principais
+│   │   └── k1max_monitor.py     # WebSocket monitor
+│   └── adapters/
+│       └── metaverso_client.py  # API Metaverso
+├── tests/
+│   ├── unit/                     # Testes unitários
+│   ├── integration/              # Testes integração
+│   └── discovery/                # Testes protocolo
+├── legacy/
+│   └── script.py                 # GUI automation
+├── config/
+│   ├── config.yaml               # Config (gitignored)
+│   └── config.example.yaml       # Template
+├── docs/
+│   ├── ARCHITECTURE.md           # Arquitetura sistema
+│   └── API.md                    # Referência API
+├── research/                     # Engenharia reversa (arquivado)
+├── setup.py
+└── README.md
+```
+
+## 🔌 Protocolo WebSocket K1 Max
+
+### Conexão
+```python
+ws://192.168.20.175:9999
+ping_interval=None  # CRÍTICO: K1 Max não responde PING frames
+```
+
+### Broadcast Completo (~5-10s)
+```json
+{
+  "state": 0,
+  "printProgress": 0,
+  "nozzleTemp": "25.0",
+  "bedTemp0": "24.0",
+  "printFileName": "/path/file.gcode"
+}
+```
+
+### Update Incremental (~10x/s)
+```json
+{
+  "nozzleTemp": "210.5"
+}
+```
+
+**Campos críticos:**
+- `state`: 0=idle, 1=printing
+- `printProgress`: 0-100%
+- `nozzleTemp`, `bedTemp0`: Temperaturas (string)
+- `printFileName`: Arquivo atual (material no nome: `_PLA_`)
+
 ## 🔧 Troubleshooting
 
-### Problemas Comuns
-
-#### ❌ WebSocket Timeout
+### WebSocket Timeout
 ```
 Error: timed out during opening handshake
 ```
-**Solução**: Verifique se impressora está ligada e IP correto em `config.yaml`
+✅ Verificar IP em `config.yaml` e impressora ligada
 
-#### ❌ Botão Não Clicável
+### GUI Automation Falha
 ```
-ERROR: Elemento 'slice_button.png' não encontrado
+ERROR: Elemento não encontrado
 ```
-**Solução**: 
-1. Recapture screenshot do botão após fatiamento
-2. Reduza `confidence` no `script.py`
-3. Aguarde mais tempo (`time.sleep`)
+✅ Recapturar screenshots em `assets/`  
+✅ Ajustar `confidence` no código
 
-#### ❌ Erro de Autenticação API
+### Autenticação API
 ```
 401 Unauthorized
 ```
-**Solução**: Atualize credenciais em `config/config.yaml`
-
-#### ❌ Path Relativo Não Encontrado
-```
-FileNotFoundError: '../models/file.glb'
-```
-**Solução**: Use path absoluto: `C:/Projetos/.../models/file.glb`
-
-### Debug Avançado
-```python
-# Ativar logs detalhados
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
+✅ Atualizar credenciais em `config.yaml`
 
 ## 🧪 Testes
-
-### Testar Sistema Completo
 ```bash
-cd src
-python k1max/test_k1max.py
+# Teste completo
+python -m src.k1max.k1max_controller
+
+# Testes unitários
+pytest tests/unit/
+
+# Testes integração (requer hardware)
+pytest tests/integration/
 ```
 
-### Testar API Isoladamente
-```bash
-cd src
-python test_menu.py
-```
+## 📈 Status
 
-### Testar GUI Automation
-```bash
-cd legacy
-python script.py C:/path/to/test.glb
-```
+| Função | Status | Método | Testado |
+|--------|--------|--------|---------|
+| `is_printing()` | ✅ | WebSocket | ✅ Lab |
+| `is_ready()` | ✅ | WebSocket | ✅ Lab |
+| `set_material()` | ✅ | Preset | ✅ |
+| `set_temperature()` | ✅ | Preset | ✅ |
+| `send_print_job()` | ✅ | GUI Automation | ✅ |
 
-## 📈 Status das Implementações
+## 📚 Documentação
 
-| Componente | Status | Testado |
-|------------|--------|---------|
-| API Client | ✅ Completo | ✅ Sim |
-| WebSocket Monitor | ✅ Completo | ⏳ Aguarda hardware |
-| is_printing() | ✅ Completo | ⏳ Aguarda hardware |
-| is_ready() | ✅ Completo | ⏳ Aguarda hardware |
-| set_material() | ✅ Completo | ✅ Sim |
-| set_temperature() | ✅ Completo | ✅ Sim |
-| send_print_job() | ✅ Completo | ✅ Sim |
-| GUI Automation | ✅ Completo | ✅ Sim |
+- [Arquitetura](docs/ARCHITECTURE.md)
+- [API Reference](docs/API.md)
 
 ## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/NovaFuncionalidade`)
-3. Commit (`git commit -m 'Adiciona nova funcionalidade'`)
-4. Push (`git push origin feature/NovaFuncionalidade`)
-5. Abra um Pull Request
+```bash
+git checkout -b feature/nova-funcionalidade
+git commit -m "Adiciona funcionalidade X"
+git push origin feature/nova-funcionalidade
+```
 
 ## 📝 Changelog
 
-### v2.0.0 (2025-10-15)
-- ➕ Sistema controle K1 Max 
-- ➕ Cliente API Metaverso 
-- ➕ Monitor WebSocket tempo real
-- 🔧 Reorganização estrutura (src/, legacy/, config/)
-- 🔧 Script.py aceita argumentos via subprocess
-- 🐛 Correção duplo clique botões Fatiar/Enviar
+### v2.0.0 (2025-10-16)
+- ✅ Implementa 5 funções Hugo (is_printing, is_ready, set_material, set_temperature, send_print_job)
+- ✅ WebSocket monitor com protocolo descoberto via engenharia reversa
+- ✅ Integração API Metaverso
+- 🔧 Reorganização estrutura (src/, tests/, docs/, research/)
+- 🔧 Discovery HTTP API (confirmado não disponível)
+- 📚 Documentação técnica completa
 
-### v1.0.0 (Anterior)
+### v1.0.0
 - ✨ Implementação inicial GUI automation
 - ✨ Conversão GLB → STL
 - ✨ Integração Creality Print
 
 ## 👥 Autores
 
-- **Yan Santos** - *Desenvolvimento* - [GitHub](https://github.com/santtyan)
+**Yan Santos** - Desenvolvimento - [GitLab](https://gitlab.com/ivato)
 
 ## 📞 Contato
 
-- **GitLab**: [metaversoufg-printerinterface](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface)
+- **Repositório**: [metaversoufg-printerinterface](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface)
 - **Email**: leiteyan@discente.ufg.br
 
 ## 📄 Licença
 
-Este projeto está sob licença MIT - veja arquivo LICENSE para detalhes.
+MIT License - veja [LICENSE](LICENSE)
 
 ---
 

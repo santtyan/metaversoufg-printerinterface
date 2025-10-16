@@ -11,7 +11,7 @@ K1 Max Controller - Implementa as 5 funções
 import sys
 import subprocess
 from pathlib import Path
-from .k1max_monitor import K1MaxMonitor
+from .monitor import K1MaxMonitor
 
 class K1MaxController:
     def __init__(self, config_path="config/config.yaml"):

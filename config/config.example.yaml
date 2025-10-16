@@ -1,0 +1,16 @@
+api:
+  base_url: "https://metaverso.medialab.ufg.br/v1"
+  timeout: 30
+
+credentials:
+  email: "seu_email@example.com"
+  username: "seu_usuario"
+  password: "sua_senha"
+
+printer:
+  ip: "192.168.20.XXX"  # Alterar para IP da impressora
+  websocket_port: 9999
+  http_port: 80
+
+logging:
+  level: "INFO"

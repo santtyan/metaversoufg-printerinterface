@@ -1,8 +1,9 @@
-**Conteúdo do .gitignore:**
+notepad .gitignore
+```
 ```
 # Ambientes virtuais
-venv_k1max_automation/
-venv/
+venv*/
+.venv/
 env/
 
 # Python
@@ -10,27 +11,31 @@ __pycache__/
 *.pyc
 *.pyo
 *.egg-info/
+dist/
+build/
 .pytest_cache/
+.coverage
 
 # Credenciais
+config/config.yaml
 token
 *.token
-config_local.yaml
 
 # Arquivos temporários
 *.stl
 *.gcode
 models/*.stl
-models/*.gcode
+*.log
 
 # IDE
 .vscode/
 .idea/
 *.swp
 
-# Logs
-*.log
-
-# Sistema
+# OS
 .DS_Store
 Thumbs.db
+
+# Research (arquivado)
+research/*/venv/
+research/*/.venv/
