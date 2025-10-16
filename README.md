@@ -3,6 +3,7 @@
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
+[![Tests](https://img.shields.io/badge/tests-8%2F8%20passing-success.svg)]()
 
 Biblioteca Python para controle da impressora 3D Creality K1 Max integrada com API Metaverso UFG.
 
@@ -24,9 +25,10 @@ Sistema de controle e monitoramento para impressoras Creality K1 Max, oferecendo
 
 ### 🌐 Integração API Metaverso
 
-- ✅ Autenticação automática com retry
+- ✅ Autenticação automática
 - ✅ Gerenciamento de fila de impressão
 - ✅ Sincronização de status
+- ✅ 8 métodos disponíveis
 
 ### 📊 Monitoramento WebSocket
 
@@ -43,6 +45,7 @@ Sistema de controle e monitoramento para impressoras Creality K1 Max, oferecendo
 - **Trimesh**: Processamento 3D
 - **Requests**: Cliente HTTP
 - **PyYAML**: Gerenciamento configuração
+- **Pytest**: Framework de testes
 
 ## 📋 Pré-requisitos
 
@@ -101,7 +104,7 @@ printer:
 
 ### Exemplo Básico
 ```python
-from src.k1max.k1max_controller import K1MaxController
+from k1max.controller import K1MaxController
 
 controller = K1MaxController()
 
@@ -115,57 +118,45 @@ if controller.is_ready():
     controller.send_print_job('models/object.glb')
 ```
 
-### Monitoramento
-```python
-import time
-
-while True:
-    if controller.is_printing():
-        print("🖨️ Imprimindo...")
-    elif controller.is_ready():
-        print("✅ Pronta")
-    
-    time.sleep(5)
-```
-
 ### Workflow Completo
 ```python
-from src.adapters.metaverso_api_client import MetaversoClient
+from adapters.metaverso_client import MetaversoAPIClient
+from k1max.controller import K1MaxController
 
 # Integração API + Impressora
-api = MetaversoClient()
+api = MetaversoAPIClient()
 controller = K1MaxController()
 
-if api.login():
-    queue = api.get_print_queue()
-    
-    if queue and controller.is_ready():
-        obj = queue[0]
-        controller.send_print_job(obj['file_path'])
+api.authenticate()
+objetos = api.get_printable_objects()
+
+if objetos and controller.is_ready():
+    obj = objetos[0]
+    api.mark_object_printing(obj['object_id'])
+    api.save_object_file(obj['object_id'], 'models/temp.glb')
+    controller.send_print_job('models/temp.glb')
 ```
 
 ## 📁 Estrutura
 ```
 metaversoufg-printerinterface/
 ├── src/
-│   ├── k1max/                    # Controle K1 Max
-│   │   ├── k1max_controller.py  # 5 funções principais
-│   │   └── k1max_monitor.py     # WebSocket monitor
+│   ├── k1max/
+│   │   ├── controller.py         # 5 funções principais
+│   │   └── monitor.py            # WebSocket monitor
 │   └── adapters/
-│       └── metaverso_client.py  # API Metaverso
+│       └── metaverso_client.py   # API Metaverso
 ├── tests/
-│   ├── unit/                     # Testes unitários
+│   ├── unit/                     # 8 testes unitários
 │   ├── integration/              # Testes integração
 │   └── discovery/                # Testes protocolo
-├── legacy/
-│   └── script.py                 # GUI automation
 ├── config/
 │   ├── config.yaml               # Config (gitignored)
 │   └── config.example.yaml       # Template
-├── docs/
-│   ├── ARCHITECTURE.md           # Arquitetura sistema
-│   └── API.md                    # Referência API
+├── docs/                         # Documentação técnica
 ├── research/                     # Engenharia reversa (arquivado)
+├── assets/                       # Screenshots GUI automation
+├── models/                       # Arquivos 3D
 ├── setup.py
 └── README.md
 ```
@@ -189,18 +180,40 @@ ping_interval=None  # CRÍTICO: K1 Max não responde PING frames
 }
 ```
 
-### Update Incremental (~10x/s)
-```json
-{
-  "nozzleTemp": "210.5"
-}
-```
-
 **Campos críticos:**
 - `state`: 0=idle, 1=printing
 - `printProgress`: 0-100%
 - `nozzleTemp`, `bedTemp0`: Temperaturas (string)
 - `printFileName`: Arquivo atual (material no nome: `_PLA_`)
+
+## 🧪 Testes
+```bash
+# Testes unitários (8/8 passing)
+pytest tests/unit/ -v
+
+# Teste API Metaverso
+python test_integration_api.py
+
+# Testes integração (requer hardware)
+pytest tests/integration/
+```
+
+## 📈 Status
+
+| Componente | Status | Testes |
+|------------|--------|--------|
+| K1 Max Controller | ✅ | 8/8 passed |
+| API Metaverso | ✅ | Autenticação OK |
+| WebSocket Monitor | ✅ | Validado Lab |
+| GUI Automation | ✅ | Funcional |
+
+| Função | Método | Testado |
+|--------|--------|---------|
+| `is_printing()` | WebSocket | ✅ Lab |
+| `is_ready()` | WebSocket | ✅ Lab |
+| `set_material()` | Preset | ✅ |
+| `set_temperature()` | Preset | ✅ |
+| `send_print_job()` | GUI Automation | ✅ |
 
 ## 🔧 Troubleshooting
 
@@ -223,48 +236,20 @@ ERROR: Elemento não encontrado
 ```
 ✅ Atualizar credenciais em `config.yaml`
 
-## 🧪 Testes
-```bash
-# Teste completo
-python -m src.k1max.k1max_controller
-
-# Testes unitários
-pytest tests/unit/
-
-# Testes integração (requer hardware)
-pytest tests/integration/
-```
-
-## 📈 Status
-
-| Função | Status | Método | Testado |
-|--------|--------|--------|---------|
-| `is_printing()` | ✅ | WebSocket | ✅ Lab |
-| `is_ready()` | ✅ | WebSocket | ✅ Lab |
-| `set_material()` | ✅ | Preset | ✅ |
-| `set_temperature()` | ✅ | Preset | ✅ |
-| `send_print_job()` | ✅ | GUI Automation | ✅ |
-
 ## 📚 Documentação
 
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [API Reference](docs/API.md)
 
-## 🤝 Contribuição
-```bash
-git checkout -b feature/nova-funcionalidade
-git commit -m "Adiciona funcionalidade X"
-git push origin feature/nova-funcionalidade
-```
-
 ## 📝 Changelog
 
 ### v2.0.0 (2025-10-16)
-- ✅ Implementa 5 funções Hugo (is_printing, is_ready, set_material, set_temperature, send_print_job)
-- ✅ WebSocket monitor com protocolo descoberto via engenharia reversa
-- ✅ Integração API Metaverso
-- 🔧 Reorganização estrutura (src/, tests/, docs/, research/)
-- 🔧 Discovery HTTP API (confirmado não disponível)
+- ✅ Implementa 5 funções (controller, monitor)
+- ✅ WebSocket protocol descoberto via engenharia reversa
+- ✅ Integração API Metaverso (8 métodos)
+- ✅ 8 testes unitários (100% passing)
+- 🔧 Reorganização estrutura (src/, tests/, docs/)
+- 🔧 Discovery HTTP API (não disponível)
 - 📚 Documentação técnica completa
 
 ### v1.0.0
