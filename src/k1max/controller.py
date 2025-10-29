@@ -3,8 +3,8 @@
 K1 Max Controller - Implementa as 5 funções
 1. is_printing() - checar se está imprimindo
 2. is_ready() - checar se está livre
-3. set_material() - configurar material
-4. set_temperature() - configurar temperatura
+3. set_material() - checa o  material
+4. set_temperature() - checa a  temperatura
 5. send_print_job() - enviar objeto para impressão
 """
 
@@ -61,7 +61,7 @@ class K1MaxController:
         if not file.exists():
             raise FileNotFoundError(f"Arquivo não encontrado: {file_path}")
         
-        script = self.project_root / "legacy" / "script.py"
+        script = self.project_root / "legacy" / "gui_automation.py"
         
         print(f"Enviando '{file.name}' para impressão...")
         
