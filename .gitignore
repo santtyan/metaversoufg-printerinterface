@@ -39,3 +39,5 @@ Thumbs.db
 # Research (arquivado)
 research/*/venv/
 research/*/.venv/
+tatus
+test_parser.py
