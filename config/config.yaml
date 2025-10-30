@@ -1,5 +1,8 @@
+# ============= API METAVERSO =============
 api:
   base_url: "https://metaverso.medialab.ufg.br/v1"
+  auth_endpoint: "/auth/login"
+  queue_endpoint: "/printer/printable?with_file=true"
   timeout: 30
 
 credentials:
@@ -7,10 +10,29 @@ credentials:
   username: "scanner"
   password: "scanner"
 
+# ============= IMPRESSORA K1 MAX =============
 printer:
   ip: "192.168.20.175"
   websocket_port: 9999
   http_port: 80
+  
+  # Configurações GUI Automation
+  slicer_path: "C:\\Program Files\\Creality\\Creality Print 6.2\\CrealityPrint.exe"
+  preset_file: "metaverso_PLA.creality_printer"
+  startup_delay: 25
+  slice_delay: 20
 
+# ============= CAMINHOS =============
+paths:
+  project_root: "C:\\Projetos\\metaversoufg-printerinterface"
+  assets: "assets"
+  models: "models"
+
+# ============= POLLING =============
+polling:
+  interval: 30  # segundos entre verificações da fila
+  timeout: 30   # timeout para operações GUI
+
+# ============= LOGGING =============
 logging:
   level: "INFO"

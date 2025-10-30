@@ -172,7 +172,6 @@ min_fan_speed = {preset.fan_speed}
             cmd = [
                 self.prusaslicer_path,
                 "--export-gcode",
-                "--ensure-on-bed",
                 "--load", config_file,
                 "--output", str(output_path),
                 str(stl_path)

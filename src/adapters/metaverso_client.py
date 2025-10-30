@@ -3,6 +3,7 @@ import requests
 import base64
 import os
 import yaml
+from pathlib import Path
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -15,6 +16,7 @@ class MetaversoAPIClient:
         self.base_url = cfg['api']['base_url']
         self.timeout = cfg['api']['timeout']
         self.credentials = cfg['credentials']
+        self.models_dir = Path(cfg['paths']['project_root']) / cfg['paths']['models']
         
         self.session = requests.Session()
         
@@ -80,8 +82,11 @@ class MetaversoAPIClient:
         r.raise_for_status()
         return r.json()
     
-    def save_object_file(self, base64_content, object_id, output_dir="../../models"):
+    def save_object_file(self, base64_content, object_id, output_dir=None):
         """Decodifica base64 e salva arquivo GLB localmente"""
+        if output_dir is None:
+            output_dir = self.models_dir
+        
         os.makedirs(output_dir, exist_ok=True)
         file_path = os.path.join(output_dir, f"{object_id}.glb")
         
