@@ -74,9 +74,17 @@ class CrealityPresetParser:
         else:
             infill_density = int(infill_raw)
         
+        # Temperaturas com override Metaverso para PLA
+        nozzle_temp = self._parse_value(raw.get('nozzle_temperature'), int, 210)
+        nozzle_temp_initial = self._parse_value(raw.get('nozzle_temperature_initial_layer'), int, 220)
+        
+        if material.upper() == 'PLA':
+            nozzle_temp = 220
+            nozzle_temp_initial = 225
+        
         return PrintPreset(
-            nozzle_temp=self._parse_value(raw.get('nozzle_temperature'), int, 210),
-            nozzle_temp_initial=self._parse_value(raw.get('nozzle_temperature_initial_layer'), int, 220),
+            nozzle_temp=nozzle_temp,
+            nozzle_temp_initial=nozzle_temp_initial,
             bed_temp=self._parse_value(raw.get('bed_temperature'), int, 60),
             bed_temp_initial=self._parse_value(raw.get('bed_temperature_initial_layer'), int, 60),
             print_speed=self._parse_value(raw.get('print_speed'), int, 300),

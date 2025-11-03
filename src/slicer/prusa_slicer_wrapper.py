@@ -100,6 +100,7 @@ skirt_distance = 2
 [printer_settings]
 # Hardware
 printer_model = {self.config.printer_model}
+
 bed_shape = 0x0,{self.config.bed_size_x}x0,{self.config.bed_size_x}x{self.config.bed_size_y},0x{self.config.bed_size_y}
 max_print_height = {self.config.bed_size_z}
 nozzle_diameter = {self.config.nozzle_diameter}
@@ -115,10 +116,17 @@ first_layer_temperature = {preset.nozzle_temp_initial}
 bed_temperature = {preset.bed_temp}
 first_layer_bed_temperature = {preset.bed_temp_initial}
 
+# Filament overrides (força valores)
+filament_temperature = {preset.nozzle_temp}
+filament_temperature_0 = {preset.nozzle_temp}
+filament_bed_temperature = {preset.bed_temp}
+filament_bed_temperature_0 = {preset.bed_temp}
+
 # Ventilação
 fan_always_on = 1
 max_fan_speed = {preset.fan_speed}
 min_fan_speed = {preset.fan_speed}
+
 """
     
     def slice_stl(
