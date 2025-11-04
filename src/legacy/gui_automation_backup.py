@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pipeline GLB→STL→G-code→Impressão - Híbrido Otimizado"""
+"""Pipeline GLB→STL→G-code→Impressão - Essencial"""
 
 import sys
 import time

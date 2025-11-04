@@ -1,10 +1,9 @@
-# test_api_real.py
+﻿# -*- coding: utf-8 -*-
 import requests
 import yaml
 from pathlib import Path
 
-# Carregar config
-config = yaml.safe_load(open('config.yaml'))
+config = yaml.safe_load(open('config/config.yaml', encoding='utf-8'))
 
 API_BASE = config['api']['base_url']
 QUEUE_ENDPOINT = config['api']['queue_endpoint']
@@ -13,7 +12,7 @@ EMAIL = config['credentials']['email']
 PASSWORD = config['credentials']['password']
 
 print("=" * 70)
-print("TESTE REAL: API Metaverso com Autenticação")
+print("TESTE REAL: API Metaverso com Autenticacao")
 print("=" * 70)
 
 # PASSO 1: Autenticar
@@ -30,61 +29,53 @@ auth_response = requests.post(
 print(f"Status: {auth_response.status_code}")
 
 if auth_response.status_code != 200:
-    print(f"❌ Autenticação falhou: {auth_response.text}")
+    print(f"Autenticacao falhou: {auth_response.text}")
     exit(1)
 
 auth_data = auth_response.json()
-token = auth_data.get('token') or auth_data.get('access_token') or auth_data.get('jwt')
+token = auth_data.get('accessToken') or auth_data.get('access_token') or auth_data.get('token')
 
 if not token:
-    print(f"❌ Token não encontrado na resposta")
+    print(f"Token nao encontrado na resposta")
     print(f"Resposta completa: {auth_data}")
     exit(1)
 
-print(f"✅ Token obtido: {token[:30]}...")
+print(f"Token obtido: {token[:30]}...")
 
-# PASSO 2: Buscar fila de impressão
+# PASSO 2: Buscar fila
 print("\n[2/3] Buscando objetos na fila...")
 queue_url = f"{API_BASE}{QUEUE_ENDPOINT}"
 print(f"URL: {queue_url}")
 
 headers = {"Authorization": f"Bearer {token}"}
 
-queue_response = requests.get(
-    queue_url,
-    headers=headers,
-    timeout=10
-)
+queue_response = requests.get(queue_url, headers=headers, timeout=10)
 
 print(f"Status: {queue_response.status_code}")
-print(f"Content-Type: {queue_response.headers.get('Content-Type')}")
 
 if queue_response.status_code != 200:
-    print(f"❌ Erro ao buscar fila: {queue_response.text}")
+    print(f"Erro ao buscar fila: {queue_response.text}")
     exit(1)
 
-# Parsear resposta
 try:
     queue_data = queue_response.json()
-    print(f"✅ JSON válido recebido")
-    print(f"\nEstrutura da resposta:")
-    print(f"  Keys: {list(queue_data.keys())}")
+    print(f"JSON valido recebido")
     
     # Analisar estrutura
     if isinstance(queue_data, list):
         objects = queue_data
-        print(f"  Formato: Lista direta")
-    elif 'data' in queue_data:
+        print(f"Formato: Lista direta")
+    elif isinstance(queue_data, dict) and 'data' in queue_data:
         objects = queue_data['data']
-        print(f"  Formato: Objeto com 'data'")
+        print(f"Formato: Objeto com 'data'")
     else:
         objects = []
-        print(f"  ⚠️ Formato desconhecido")
+        print(f"Formato desconhecido: {type(queue_data)}")
     
-    print(f"\n✅ Objetos na fila: {len(objects)}")
+    print(f"\nObjetos na fila: {len(objects)}")
     
     if not objects:
-        print("⚠️  Fila vazia")
+        print("Fila vazia")
         exit(0)
     
     # PASSO 3: Analisar primeiro objeto
@@ -103,11 +94,11 @@ try:
     print("TESTE DE DOWNLOAD")
     print("=" * 70)
     
-    file_url = obj.get('file_url') or obj.get('file') or obj.get('stl_url')
+    file_url = obj.get('file_url') or obj.get('file') or obj.get('stl_url') or obj.get('url')
     
     if not file_url:
-        print("❌ URL do arquivo não encontrada")
-        print(f"   Campos disponíveis: {list(obj.keys())}")
+        print("URL do arquivo nao encontrada")
+        print(f"Campos disponiveis: {list(obj.keys())}")
         exit(1)
     
     print(f"URL do arquivo: {file_url}")
@@ -119,36 +110,35 @@ try:
     
     if download_response.status_code == 200:
         size = len(download_response.content)
-        print(f"✅ Download OK: {size:,} bytes")
+        print(f"Download OK: {size:,} bytes")
         
-        # Salvar
         downloads_dir = Path("downloads")
         downloads_dir.mkdir(exist_ok=True)
         
         output_file = downloads_dir / f"{obj.get('id', 'test')}.stl"
         output_file.write_bytes(download_response.content)
         
-        print(f"✅ Salvo em: {output_file}")
+        print(f"Salvo em: {output_file}")
         
         # Validar STL
         content_start = download_response.content[:100]
         is_valid = (
-            content_start.startswith(b'\x00' * 5) or  # Binary STL
-            b'solid' in content_start.lower()          # ASCII STL
+            content_start.startswith(b'\x00' * 5) or
+            b'solid' in content_start.lower()
         )
         
         if is_valid:
-            print(f"✅ Arquivo STL válido detectado")
+            print(f"Arquivo STL valido!")
             print("\n" + "=" * 70)
-            print("🎉 PIPELINE DESBLOQUEADO - Sistema 100% funcional!")
+            print("PIPELINE DESBLOQUEADO - Sistema 100% funcional!")
             print("=" * 70)
         else:
-            print(f"⚠️  Arquivo pode não ser STL válido")
-            print(f"   Primeiros bytes: {content_start[:30]}")
+            print(f"Arquivo pode nao ser STL")
+            print(f"Primeiros bytes: {content_start[:30]}")
     else:
-        print(f"❌ Download falhou: {download_response.text[:200]}")
+        print(f"Download falhou: {download_response.text[:200]}")
 
 except Exception as e:
-    print(f"❌ Erro: {type(e).__name__}: {e}")
+    print(f"Erro: {type(e).__name__}: {e}")
     import traceback
     traceback.print_exc()
