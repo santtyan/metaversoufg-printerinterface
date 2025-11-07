@@ -1,4 +1,4 @@
-"""
+﻿"""
 Wrapper PrusaSlicer CLI com presets Creality
 Fatia STL usando valores oficiais da impressora
 """
@@ -17,7 +17,7 @@ from presets.creality_preset_parser import CrealityPresetParser, PrintPreset
 
 @dataclass
 class SlicerConfig:
-    """Configuração para o slicer"""
+    """ConfiguraÃ§Ã£o para o slicer"""
     printer_model: str = "K1 Max"
     bed_size_x: int = 300
     bed_size_y: int = 300
@@ -35,8 +35,8 @@ class PrusaSlicerWrapper:
     ):
         """
         Args:
-            prusaslicer_path: Caminho executável PrusaSlicer
-            config: Configuração impressora
+            prusaslicer_path: Caminho executÃ¡vel PrusaSlicer
+            config: ConfiguraÃ§Ã£o impressora
         """
         self.prusaslicer_path = prusaslicer_path
         self.config = config or SlicerConfig()
@@ -50,7 +50,7 @@ class PrusaSlicerWrapper:
             preset: Preset Creality parseado
             
         Returns:
-            Conteúdo .ini completo
+            ConteÃºdo .ini completo
         """
         return f"""# Gerado automaticamente de preset Creality
 # Printer: {self.config.printer_model}
@@ -60,7 +60,7 @@ class PrusaSlicerWrapper:
 layer_height = {preset.layer_height}
 first_layer_height = {preset.initial_layer_height}
 
-# Perímetros e linha de extrusão
+# PerÃ­metros e linha de extrusÃ£o
 perimeters = 2
 top_solid_layers = 4
 bottom_solid_layers = 4
@@ -77,7 +77,7 @@ infill_speed = {preset.print_speed}
 travel_speed = {preset.travel_speed}
 first_layer_speed = {preset.initial_layer_speed}
 
-# Suporte (configuração Metaverso)
+# Suporte (configuraÃ§Ã£o Metaverso)
 support_material = 1
 support_material_style = tree
 support_material_pattern = rectilinear
@@ -89,7 +89,7 @@ support_material_auto = 1
 brim_width = 8
 brim_type = outer_only
 
-# Retração
+# RetraÃ§Ã£o
 retract_length = {preset.retraction_length}
 retract_speed = {preset.retraction_speed}
 
@@ -116,13 +116,13 @@ first_layer_temperature = {preset.nozzle_temp_initial}
 bed_temperature = {preset.bed_temp}
 first_layer_bed_temperature = {preset.bed_temp_initial}
 
-# Filament overrides (força valores)
+# Filament overrides (forÃ§a valores)
 filament_temperature = {preset.nozzle_temp}
 filament_temperature_0 = {preset.nozzle_temp}
 filament_bed_temperature = {preset.bed_temp}
 filament_bed_temperature_0 = {preset.bed_temp}
 
-# Ventilação
+# VentilaÃ§Ã£o
 fan_always_on = 1
 max_fan_speed = {preset.fan_speed}
 min_fan_speed = {preset.fan_speed}
@@ -141,26 +141,26 @@ min_fan_speed = {preset.fan_speed}
         Args:
             stl_path: Caminho arquivo STL
             material: Material (PLA, ABS, PETG, etc.)
-            output_path: Caminho saída (opcional)
+            output_path: Caminho saÃ­da (opcional)
             
         Returns:
             Caminho arquivo G-code gerado
             
         Raises:
-            FileNotFoundError: Se STL não existe
+            FileNotFoundError: Se STL nÃ£o existe
             RuntimeError: Se slice falhar
         """
         stl_path = Path(stl_path)
         if not stl_path.exists():
-            raise FileNotFoundError(f"STL não encontrado: {stl_path}")
+            raise FileNotFoundError(f"STL nÃ£o encontrado: {stl_path}")
         
         # Carregar preset Creality
         preset = self.preset_parser.parse_preset(material)
         
-        # Gerar config .ini temporário
+        # Gerar config .ini temporÃ¡rio
         config_content = self._generate_ini_config(preset)
         
-        # Criar arquivo temporário
+        # Criar arquivo temporÃ¡rio
         with tempfile.NamedTemporaryFile(
             mode='w',
             suffix='.ini',
@@ -195,7 +195,7 @@ min_fan_speed = {preset.fan_speed}
             
             if not output_path.exists():
                 raise RuntimeError(
-                    f"G-code não foi gerado.\n"
+                    f"G-code nÃ£o foi gerado.\n"
                     f"stdout: {result.stdout}\n"
                     f"stderr: {result.stderr}"
                 )
@@ -211,11 +211,11 @@ min_fan_speed = {preset.fan_speed}
         except subprocess.TimeoutExpired:
             raise RuntimeError(f"Timeout ao fatiar (>5min): {stl_path.name}")
         finally:
-            # Limpar arquivo temporário
+            # Limpar arquivo temporÃ¡rio
             Path(config_file).unlink(missing_ok=True)
 
 
-# ========== FUNÇÕES CONVENIENTES ==========
+# ========== FUNÃ‡Ã•ES CONVENIENTES ==========
 
 def slice_with_creality_presets(
     stl_path: str,
@@ -229,7 +229,7 @@ def slice_with_creality_presets(
     Args:
         stl_path: Caminho STL
         material: PLA, ABS, PETG, TPU, etc.
-        output_path: Caminho saída (opcional)
+        output_path: Caminho saÃ­da (opcional)
         prusaslicer_path: Caminho PrusaSlicer
         
     Returns:

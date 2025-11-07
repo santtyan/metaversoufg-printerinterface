@@ -34,3 +34,4 @@ def convert_glb_to_stl(glb_path: str) -> str:
     except Exception as e:
         logger.error(f"Erro na conversao: {e}")
         return None
+

@@ -39,3 +39,4 @@ def type_path_and_enter(file_path):
     pyautogui.typewrite(str(file_path), interval=0.05)
     time.sleep(0.5)
     pyautogui.press("enter")
+

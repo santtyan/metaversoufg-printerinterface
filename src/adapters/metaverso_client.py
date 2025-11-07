@@ -1,4 +1,4 @@
-# metaverso_api_client.py
+﻿# metaverso_api_client.py
 import requests
 import base64
 import os
@@ -20,7 +20,7 @@ class MetaversoAPIClient:
         
         self.session = requests.Session()
         
-        # Retry automático
+        # Retry automÃ¡tico
         retry = Retry(
             total=3, 
             backoff_factor=0.5, 
@@ -97,7 +97,7 @@ class MetaversoAPIClient:
         return file_path if os.path.exists(file_path) else None
     
     def validate_token(self):
-        """GET /v1/auth/validate - Verifica se token é válido"""
+        """GET /v1/auth/validate - Verifica se token Ã© vÃ¡lido"""
         if not self.token:
             return False
         
@@ -111,7 +111,7 @@ class MetaversoAPIClient:
             return False
     
     def health_check(self):
-        """Verifica se API está acessível"""
+        """Verifica se API estÃ¡ acessÃ­vel"""
         try:
             r = self.session.get(
                 self.base_url.replace("/v1", ""), 
@@ -127,17 +127,17 @@ if __name__ == "__main__":
     
     print("[1/5] Autenticando...")
     client.authenticate()
-    print("✓ Autenticado")
+    print("âœ“ Autenticado")
     
     print("\n[2/5] Validando token...")
-    print(f"✓ Token {'válido' if client.validate_token() else 'inválido'}")
+    print(f"âœ“ Token {'vÃ¡lido' if client.validate_token() else 'invÃ¡lido'}")
     
     print("\n[3/5] Health check API...")
-    print(f"✓ API {'acessível' if client.health_check() else 'offline'}")
+    print(f"âœ“ API {'acessÃ­vel' if client.health_check() else 'offline'}")
     
     print("\n[4/5] Consultando fila...")
     objs = client.get_printable_objects()
-    print(f"✓ {len(objs)} objetos na fila")
+    print(f"âœ“ {len(objs)} objetos na fila")
     
     if objs:
         obj = objs[0]
@@ -145,9 +145,9 @@ if __name__ == "__main__":
         
         print(f"\n[5/5] Testando workflow com {obj_id[:8]}...")
         client.mark_object_printing(obj_id)
-        print("  ✓ Marcado PRINTING")
+        print("  âœ“ Marcado PRINTING")
         client.mark_object_printable(obj_id)
-        print("  ✓ Devolvido à fila")
+        print("  âœ“ Devolvido Ã  fila")
     
     print("\n" + "="*60)
-    print("Teste concluído.")
+    print("Teste concluÃ­do.")

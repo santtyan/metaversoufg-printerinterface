@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-"""Pipeline GLB→STL→G-code→Impressão - Híbrido Otimizado"""
+﻿#!/usr/bin/env python3
+"""Pipeline GLBâ†’STLâ†’G-codeâ†’ImpressÃ£o - HÃ­brido Otimizado"""
 
 import sys
 import time
@@ -11,10 +11,10 @@ try:
     import pyautogui
     import trimesh
 except ImportError as e:
-    print(f"Módulo ausente: {e}. Execute: pip install pyautogui trimesh")
+    print(f"MÃ³dulo ausente: {e}. Execute: pip install pyautogui trimesh")
     sys.exit(1)
 
-# ============= CONFIGURAÇÃO =============
+# ============= CONFIGURAÃ‡ÃƒO =============
 PROJECT_ROOT = Path(r"C:\Projetos\metaversoufg-printerinterface")
 SLICER_PATH = r"C:\Program Files\Creality\Creality Print 6.2\CrealityPrint.exe"
 ASSETS_DIR = PROJECT_ROOT / "assets"
@@ -33,17 +33,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# ============= UTILITÁRIOS =============
+# ============= UTILITÃRIOS =============
 def convert_glb_to_stl(glb_path):
     """Converte GLB para STL usando Trimesh"""
     try:
         stl_path = glb_path.replace('.glb', '.stl')
         mesh = trimesh.load(glb_path)
         mesh.export(stl_path)
-        logger.info(f"Conversão concluída: {Path(stl_path).name}")
+        logger.info(f"ConversÃ£o concluÃ­da: {Path(stl_path).name}")
         return stl_path
     except Exception as e:
-        logger.error(f"Erro na conversão GLB→STL: {e}")
+        logger.error(f"Erro na conversÃ£o GLBâ†’STL: {e}")
         return None
 
 def find_and_click(image_name, timeout=DEFAULT_TIMEOUT, confidence=0.9):
@@ -64,7 +64,7 @@ def find_and_click(image_name, timeout=DEFAULT_TIMEOUT, confidence=0.9):
             pass
         time.sleep(0.5)
     
-    logger.error(f"Elemento não encontrado: {image_name}")
+    logger.error(f"Elemento nÃ£o encontrado: {image_name}")
     return False
 
 def type_path_and_enter(file_path):
@@ -77,7 +77,7 @@ def try_prusaslicer_cli(stl_path, material="PLA"):
     """Tenta slice via PrusaSlicer CLI - retorna None se falhar"""
     try:
         from src.slicer.prusa_slicer_wrapper import slice_with_creality_presets
-        logger.info(f"🚀 Tentando PrusaSlicer CLI: {Path(stl_path).name}")
+        logger.info(f"ðŸš€ Tentando PrusaSlicer CLI: {Path(stl_path).name}")
         start_time = time.time()
         
         gcode_path = slice_with_creality_presets(stl_path, material)
@@ -85,7 +85,7 @@ def try_prusaslicer_cli(stl_path, material="PLA"):
         if gcode_path and Path(gcode_path).exists():
             slice_time = time.time() - start_time
             file_size = Path(gcode_path).stat().st_size / 1024
-            logger.info(f"✅ CLI sucesso: {slice_time:.1f}s, {file_size:.0f}KB")
+            logger.info(f"âœ… CLI sucesso: {slice_time:.1f}s, {file_size:.0f}KB")
             return gcode_path
     except Exception as e:
         logger.warning(f"PrusaSlicer CLI falhou: {e}")
@@ -94,7 +94,7 @@ def try_prusaslicer_cli(stl_path, material="PLA"):
 
 # ============= PIPELINE =============
 def main():
-    """Pipeline principal de automação"""
+    """Pipeline principal de automaÃ§Ã£o"""
     slicer_process = None
     
     try:
@@ -149,18 +149,18 @@ def main():
         type_path_and_enter(PRESET_FILE)
         time.sleep(5)
         
-        # Resolver conflitos (com fallback crítico)
+        # Resolver conflitos (com fallback crÃ­tico)
         time.sleep(3)
         if find_and_click('criar_copia_button.png', timeout=5, confidence=0.8):
-            logger.info("Criou cópia para resolver conflito.")
+            logger.info("Criou cÃ³pia para resolver conflito.")
         time.sleep(2)
         
         if not find_and_click('certo_button.png', timeout=5, confidence=0.8):
-            logger.info("Botão 'Certo' não encontrado, pressionando Enter...")
+            logger.info("BotÃ£o 'Certo' nÃ£o encontrado, pressionando Enter...")
             pyautogui.press('enter')
             time.sleep(2)
         
-        logger.info("Configurações importadas.")
+        logger.info("ConfiguraÃ§Ãµes importadas.")
         
         # 5. Arranjar e fatiar
         logger.info("Organizando e fatiando...")
@@ -171,46 +171,46 @@ def main():
         # Aguardar interface estabilizar antes de fatiar
         time.sleep(2)
         
-        # === ÚNICA MUDANÇA: Tentar CLI antes de GUI ===
+        # === ÃšNICA MUDANÃ‡A: Tentar CLI antes de GUI ===
         cli_gcode = try_prusaslicer_cli(file_path, "PLA")
         if cli_gcode:
-            logger.info("⏭️ Pulando slice GUI - usando G-code CLI")
+            logger.info("â­ï¸ Pulando slice GUI - usando G-code CLI")
             time.sleep(SLICE_PROCESSING_DELAY)  # Simular tempo GUI
         else:
-            # Slice GUI original (sem mudanças)
+            # Slice GUI original (sem mudanÃ§as)
             if find_and_click('slice_button.png', timeout=15, confidence=0.7):
-                logger.info("Botão Fatiar encontrado.")
+                logger.info("BotÃ£o Fatiar encontrado.")
                 time.sleep(1)
                 pyautogui.click()
                 time.sleep(1)
                 logger.info("Fatiamento iniciado.")
                 time.sleep(20)
             else:
-                logger.info("Botão Fatiar não encontrado, usando coordenadas fixas...")
+                logger.info("BotÃ£o Fatiar nÃ£o encontrado, usando coordenadas fixas...")
                 pyautogui.click(1244, 656)
                 time.sleep(1)
                 pyautogui.click()
                 time.sleep(1)
                 logger.info("Fatiamento iniciado (fallback).")
                 time.sleep(20)
-        # === FIM DA ÚNICA MUDANÇA ===
+        # === FIM DA ÃšNICA MUDANÃ‡A ===
         
-        logger.info("Fatiamento concluído.")
+        logger.info("Fatiamento concluÃ­do.")
         
         # 6. Enviar para impressora
-        logger.info("Aguardando botão de envio...")
+        logger.info("Aguardando botÃ£o de envio...")
         time.sleep(3)
         
         if find_and_click('print_send_button.png', timeout=45, confidence=0.75):
-            logger.info("Botão 'Imprimir/Enviar' encontrado.")
+            logger.info("BotÃ£o 'Imprimir/Enviar' encontrado.")
             time.sleep(1)
             pyautogui.click()
             time.sleep(5)
             logger.info("Comando enviado para K1 Max!")
-            logger.info("Automação concluída.")
+            logger.info("AutomaÃ§Ã£o concluÃ­da.")
             return True
         
-        logger.error("Falha ao encontrar botão 'Imprimir/Enviar'.")
+        logger.error("Falha ao encontrar botÃ£o 'Imprimir/Enviar'.")
         return False
         
     except Exception as e:
@@ -229,3 +229,4 @@ def main():
 if __name__ == "__main__":
     success = main()
     sys.exit(0 if success else 1)
+

@@ -1,6 +1,6 @@
-# src/k1max/k1max_monitor.py
+﻿# src/k1max/k1max_monitor.py
 """
-K1 Max Monitor - Funções de Leitura via WebSocket
+K1 Max Monitor - FunÃ§Ãµes de Leitura via WebSocket
 Implementa: is_printing(), is_ready()
 """
 
@@ -21,17 +21,17 @@ class K1MaxMonitor:
                 data = json.loads(msg)
                 if 'state' in data:
                     return data
-            raise TimeoutError("Broadcast completo não recebido")
+            raise TimeoutError("Broadcast completo nÃ£o recebido")
     
     def is_printing(self):
-        """Verifica se impressora está imprimindo"""
+        """Verifica se impressora estÃ¡ imprimindo"""
         status = asyncio.run(self._get_status())
         state = status.get('state', 0)
         progress = status.get('printProgress', 0)
         return state == 1 or (0 < progress < 100)
     
     def is_ready(self):
-        """Verifica se impressora está pronta (idle + fria)"""
+        """Verifica se impressora estÃ¡ pronta (idle + fria)"""
         status = asyncio.run(self._get_status())
         state = status.get("state", 1)
         progress = status.get('printProgress', 100)

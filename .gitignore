@@ -1,20 +1,26 @@
-notepad .gitignore
-```
-```
+﻿
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
 # Ambientes virtuais
 venv*/
 .venv/
 env/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
-dist/
-build/
-.pytest_cache/
-.coverage
+ENV/
 
 # Credenciais
 config/config.yaml
@@ -25,19 +31,18 @@ token
 *.stl
 *.gcode
 models/*.stl
+models/*.gcode
+data/output/*.stl
+data/output/*.gcode
 *.log
+*.tmp
 
 # IDE
 .vscode/
 .idea/
 *.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Research (arquivado)
-research/*/venv/
-research/*/.venv/
-tatus
-test_parser.py
