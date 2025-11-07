@@ -1,8 +1,0 @@
-Token gerado em: 2025-10-07 22:15:48.238718
-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9hY2NvdW50IjoiOGQ1ZjFiYTItYjk0OS00ZTJiLThjN2EtNmQyNzRiYzk3MGUyIiwiaWF0IjoxNzU5ODg2MTQ3LCJleHAiOjE3NjI0NzgxNDcsImF1ZCI6IiIsImlzcyI6Im1ldGF2ZXJzby11ZmcifQ.iktKe6q21gdbcztRTUOiUkazzKNWCrs7KaPAIe9uVYo
-
-Payload usado:
-{
-  "email": "scanner@example.com",
-  "password": "scanner"
-}
