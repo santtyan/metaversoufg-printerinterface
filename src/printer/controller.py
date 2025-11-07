@@ -11,7 +11,7 @@ K1 Max Controller - Implementa as 5 funÃ§Ãµes
 import sys
 import subprocess
 from pathlib import Path
-from .monitor import printerMonitor
+from .monitor import K1MaxMonitor
 
 class K1MaxController:
     def __init__(self, config_path="config/config.yaml"):
@@ -84,3 +84,5 @@ if __name__ == "__main__":
     print("3. set_material('PLA'):", controller.set_material("PLA"))
     print("4. set_temperature(210, 60):", controller.set_temperature(210, 60))
     print("\n5. send_print_job() - executar manualmente com arquivo real")
+
+
