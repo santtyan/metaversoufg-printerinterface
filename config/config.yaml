@@ -36,3 +36,10 @@ polling:
 # ============= LOGGING =============
 logging:
   level: "INFO"
+
+# ============= PRINTERS =============
+
+printers:
+auto_discovery: true
+network_range: "192.168.20.0/24"
+discovered: []  # Preenchido automaticamente

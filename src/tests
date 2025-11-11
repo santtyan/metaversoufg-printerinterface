@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""Testes rápidos para Printer Discovery"""
+
+import asyncio
+import time
+from printer_discovery_refactored import PrinterDiscovery, discover_printers_sync
+
+def test_basic():
+    """Teste básico funcionamento"""
+    print("🧪 Teste Básico")
+    print("-" * 30)
+    
+    # Test localhost
+    printers = discover_printers_sync("127.0.0.1")
+    print(f"✓ Localhost test: {len(printers)} impressoras")
+    
+    # Test class
+    discovery = PrinterDiscovery()
+    print(f"✓ Classe OK: {discovery.KNOWN_PORTS}")
+    print()
+
+async def test_performance():
+    """Teste performance"""
+    print("⚡ Teste Performance")
+    print("-" * 30)
+    
+    discovery = PrinterDiscovery()
+    
+    # Test range pequeno
+    start = time.time()
+    printers = await discovery.discover_network_printers("127.0.0.1")
+    elapsed = time.time() - start
+    
+    print(f"✓ Single IP scan: {elapsed:.2f}s")
+    print(f"✓ Encontradas: {len(printers)} impressoras")
+    print()
+
+def test_parsing():
+    """Teste parsing rede"""
+    print("🌐 Teste Parsing")
+    print("-" * 30)
+    
+    discovery = PrinterDiscovery()
+    
+    async def run_test():
+        # Test CIDR
+        hosts = await discovery._ping_sweep("192.168.1.0/24")
+        print(f"✓ CIDR → {len(hosts)} hosts")
+        
+        # Test single
+        hosts = await discovery._ping_sweep("8.8.8.8")
+        print(f"✓ Single IP → {hosts}")
+    
+    asyncio.run(run_test())
+    print()
+
+async def run_tests():
+    """Executa testes principais"""
+    print("=" * 50)
+    print("🧪 PRINTER DISCOVERY TESTS")
+    print("=" * 50)
+    print()
+    
+    test_basic()
+    test_parsing() 
+    await test_performance()
+    
+    print("=" * 50)
+    print("✅ TESTES CONCLUÍDOS")
+    print("=" * 50)
+    print()
+    print("💡 Uso no projeto:")
+    print("from printer_discovery_refactored import discover_printers_sync")
+    print("printers = discover_printers_sync('192.168.20.0/24')")
+
+if __name__ == "__main__":
+    asyncio.run(run_tests())
