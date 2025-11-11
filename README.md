@@ -63,26 +63,81 @@ python --version  # 3.13+
 
 ## 🚀 Instalação
 
-### Via pip (recomendado)
+### Guia Completo para Novos Estudantes
+
+#### Passo 1: Clonar o Repositório
 ```bash
+# GitLab (principal)
 git clone https://gitlab.com/ivato/immersion/metaversoufg-printerinterface.git
 cd metaversoufg-printerinterface
-pip install -e .
+
+# GitHub (espelho)
+git clone https://github.com/santtyan/metaversoufg-printerinterface.git
+cd metaversoufg-printerinterface
 ```
 
-### Manual
-```bash
+#### Passo 2: Criar Ambiente Virtual
+```powershell
+# No PowerShell (Windows)
 python -m venv venv_k1max_automation
-venv_k1max_automation\Scripts\activate
-pip install -r requirements.txt
+.\venv_k1max_automation\Scripts\Activate.ps1
+
+# Atualizar pip
+python -m pip install --upgrade pip
 ```
 
-### Configuração
+#### Passo 3: Instalar Dependências
+```powershell
+# Opção A: Instalação automatizada (recomendado)
+pip install -e .
+
+# Opção B: Instalação manual
+pip install `
+    trimesh==4.8.2 `
+    numpy==2.1.3 `
+    pyautogui==0.9.54 `
+    pillow==11.0.0 `
+    websockets==12.0 `
+    requests==2.31.0 `
+    pyyaml==6.0.2 `
+    pytest==8.3.3 `
+    flake8==7.1.1 `
+    black==24.10.0
+```
+
+#### Passo 4: Validar Instalação
+```powershell
+# Verificar dependências instaladas
+pip list | Select-String -Pattern "trimesh|numpy|pyautogui|websockets|metaverso"
+
+# Testar imports críticos
+python -c "import trimesh; import pyautogui; import websockets; print('✓ Dependências core OK')"
+
+# Testar módulo do projeto
+python -c "from src.k1max.k1max_controller import K1MaxController; print('✓ Controller funcional')"
+```
+
+**Saída esperada:**
+```
+metaverso-printer  1.0.0
+numpy              2.1.3
+PyAutoGUI          0.9.54
+trimesh            4.8.2
+websockets         12.0
+✓ Dependências core OK
+✓ Controller funcional
+```
+
+#### Passo 5: Configurar Credenciais
 ```bash
+# Copiar template de configuração
 cp config/config.example.yaml config/config.yaml
-# Editar config.yaml com suas credenciais
+
+# Editar com suas credenciais (use notepad ou VS Code)
+notepad config/config.yaml
 ```
 
+**Estrutura do config.yaml:**
 ```yaml
 api:
   base_url: "https://metaverso.medialab.ufg.br/v1"
@@ -93,15 +148,36 @@ credentials:
   password: "sua_senha"
 
 printer:
-  ip: "192.168.20.175"
+  ip: "192.168.20.175"  # IP da K1 Max no laboratório
   websocket_port: 9999
+```
+
+### Troubleshooting da Instalação
+
+#### Erro: "deactivate não é reconhecido"
+✅ **Normal** - ocorre quando nenhum ambiente virtual está ativo. Ignore e prossiga.
+
+#### Erro: "No module named 'src.k1max'"
+```powershell
+# Reinstalar pacote
+pip install -e . --force-reinstall --no-deps
+```
+
+#### Erro: Import falha após instalação
+```powershell
+# Verificar se __init__.py existem
+Get-ChildItem -Recurse -Filter "__init__.py" | Select-Object FullName
+
+# Se faltarem, criar:
+New-Item -Path "src\__init__.py" -ItemType File -Force
+New-Item -Path "src\k1max\__init__.py" -ItemType File -Force
 ```
 
 ## 🎮 Uso
 
 ### Exemplo Básico
 ```python
-from k1max.controller import K1MaxController
+from src.k1max.k1max_controller import K1MaxController
 
 controller = K1MaxController()
 
@@ -117,8 +193,8 @@ if controller.is_ready():
 
 ### Workflow Completo
 ```python
-from adapters.metaverso_client import MetaversoAPIClient
-from k1max.controller import K1MaxController
+from src.adapters.metaverso_client import MetaversoAPIClient
+from src.k1max.k1max_controller import K1MaxController
 
 # Integração API + Impressora
 api = MetaversoAPIClient()
@@ -134,7 +210,7 @@ if objetos and controller.is_ready():
     controller.send_print_job('models/temp.glb')
 ```
 
-## 🚀 Pipeline Automatizado (NEW!)
+## 🚀 Pipeline Automatizado
 
 ### ✅ 95% Automação Atingida
 - **Latência:** 90s → 42s (slice time)
@@ -183,22 +259,25 @@ metaversoufg-printerinterface/
 ├── src/
 │   ├── k1max/
 │   │   ├── controller.py         # 5 funções principais
+│   │   ├── k1max_controller.py   # Interface unificada
 │   │   └── monitor.py            # WebSocket monitor
 │   ├── converters/
-│   │   └── glb_to_stl.py         # Conversão automática (NEW!)
-│   └── adapters/
-│       └── metaverso_client.py   # API Metaverso
+│   │   └── glb_to_stl.py         # Conversão automática
+│   ├── adapters/
+│   │   └── metaverso_client.py   # API Metaverso
+│   └── automation/               # GUI helpers
 ├── tests/
 │   ├── unit/                     # 8 testes unitários
 │   ├── integration/              # Testes integração
-│   └── test_simplified_pipeline.py # Pipeline CLI (NEW!)
+│   └── test_simplified_pipeline.py # Pipeline CLI
 ├── config/
 │   ├── config.yaml               # Config (gitignored)
-│   ├── slic3r_k1max.ini          # Perfil Slic3r (NEW!)
+│   ├── slic3r_k1max.ini          # Perfil Slic3r
 │   └── config.example.yaml       # Template
 ├── models/                       # Arquivos 3D (.glb, .stl)
 ├── data/output/                  # G-code gerado
-├── setup.py
+├── setup.py                      # Configuração do pacote
+├── requirements.txt              # Dependências (legacy)
 └── README.md
 ```
 
@@ -298,7 +377,19 @@ FileNotFoundError: Slic3r-console.exe
 ```
 ✅ Atualizar credenciais em `config.yaml`
 
+### Import Error após Instalação
+```
+ModuleNotFoundError: No module named 'src.k1max'
+```
+✅ Executar: `pip install -e . --force-reinstall --no-deps`
+
 ## 📝 Changelog
+
+### v3.1.0 (2025-11-11)
+
+✅ **Guia de Setup Completo** - Documentação passo-a-passo para novos estudantes  
+✅ **Ambiente Virtual Validado** - Procedimento de reconstrução testado  
+✅ **Troubleshooting Expandido** - Soluções para erros comuns de instalação  
 
 ### v3.0.0 (2025-11-10)
 
@@ -328,11 +419,14 @@ FileNotFoundError: Slic3r-console.exe
 ✨ Integração Creality Print
 
 ## 👥 Autores
-**Yan Santos** - Desenvolvimento - [GitLab](https://gitlab.com/ivato)
+**Yan Santos** - Desenvolvimento  
+- GitLab: [@ivato](https://gitlab.com/ivato)
+- GitHub: [@santtyan](https://github.com/santtyan)
 
 ## 📞 Contato
 
-- **Repositório:** [metaversoufg-printerinterface](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface)
+- **Repositório GitLab (Principal):** [metaversoufg-printerinterface](https://gitlab.com/ivato/immersion/metaversoufg-printerinterface)
+- **Repositório GitHub (Espelho):** [metaversoufg-printerinterface](https://github.com/santtyan/metaversoufg-printerinterface)
 - **Email:** leiteyan@discente.ufg.br
 
 ## 📄 Licença
