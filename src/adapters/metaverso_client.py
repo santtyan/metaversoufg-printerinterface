@@ -88,18 +88,30 @@ class MetaversoAPIClient:
         return r.json()
     
     def save_object_file(self, base64_content, object_id, output_dir=None):
-        """Decodifica base64 e salva arquivo GLB no disco"""
+        """Decodifica base64 e salva arquivo GLB no disco com validação"""
         if output_dir is None:
             output_dir = self.models_dir
         
         os.makedirs(output_dir, exist_ok=True)
-        file_path = os.path.join(output_dir, f"{object_id}.glb")
+        file_path = Path(output_dir) / f"{object_id}.glb"
         
-        file_data = base64.b64decode(base64_content)
-        with open(file_path, "wb") as f:
-            f.write(file_data)
-        
-        return file_path if os.path.exists(file_path) else None
+        try:
+            # Decodificar e salvar
+            file_data = base64.b64decode(base64_content)
+            with open(file_path, "wb") as f:
+                f.write(file_data)
+            
+            # Validar GLB header
+            import trimesh
+            trimesh.load(str(file_path))
+            
+            return str(file_path)
+            
+        except Exception as e:
+            # GLB corrompido - deletar e retornar None
+            if file_path.exists():
+                file_path.unlink()
+            return None
     
     def validate_token(self):
         """GET /v1/auth/validate - Verifica se token JWT é válido"""
