@@ -1,243 +1,114 @@
-﻿"""
-Wrapper PrusaSlicer CLI com presets Creality
-Fatia STL usando valores oficiais da impressora
+#!/usr/bin/env python3
+"""
+Wrapper PrusaSlicer CLI para fatiamento automatizado
+Gera G-code pronto para abrir nativamente no Creality Print
 """
 
 import subprocess
-import tempfile
+import logging
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
+logger = logging.getLogger(__name__)
 
-from presets.creality_preset_parser import CrealityPresetParser, PrintPreset
-
-
-@dataclass
-class SlicerConfig:
-    """ConfiguraÃ§Ã£o para o slicer"""
-    printer_model: str = "K1 Max"
-    bed_size_x: int = 300
-    bed_size_y: int = 300
-    bed_size_z: int = 300
-    nozzle_diameter: float = 0.4
-
-
-class PrusaSlicerWrapper:
-    """Wrapper para PrusaSlicer CLI usando presets Creality"""
+class PrusaSlicer:
+    """Interface para PrusaSlicer CLI"""
     
-    def __init__(
-        self,
-        prusaslicer_path: str = "prusa-slicer",
-        config: Optional[SlicerConfig] = None
-    ):
-        """
-        Args:
-            prusaslicer_path: Caminho executÃ¡vel PrusaSlicer
-            config: ConfiguraÃ§Ã£o impressora
-        """
-        self.prusaslicer_path = prusaslicer_path
-        self.config = config or SlicerConfig()
-        self.preset_parser = CrealityPresetParser()
+    def __init__(self, config: dict):
+        self.exe_path = r"C:\Program Files\PrusaSlicer\prusa-slicer-console.exe"
+        self.preset_dir = Path(config['paths']['project_root']) / "assets"
+        
+        # Verificar instalação
+        if not Path(self.exe_path).exists():
+            raise FileNotFoundError(
+                f"PrusaSlicer não encontrado em {self.exe_path}\n"
+                "Instale via: choco install prusaslicer"
+            )
     
-    def _generate_ini_config(self, preset: PrintPreset) -> str:
+    def slice_stl(self, stl_path: str, output_dir: str = "data/output") -> Optional[str]:
         """
-        Gera arquivo .ini do PrusaSlicer com valores Creality
+        Fatia STL usando preset Metaverso PLA
         
         Args:
-            preset: Preset Creality parseado
-            
-        Returns:
-            ConteÃºdo .ini completo
-        """
-        return f"""# Gerado automaticamente de preset Creality
-# Printer: {self.config.printer_model}
-
-[print_settings]
-# Camadas
-layer_height = {preset.layer_height}
-first_layer_height = {preset.initial_layer_height}
-
-# PerÃ­metros e linha de extrusÃ£o
-perimeters = 2
-top_solid_layers = 4
-bottom_solid_layers = 4
-first_layer_line_width = 0.42
-perimeter_line_width = 0.42
-
-# Infill (baseado no preset Metaverso)
-fill_density = 10%
-fill_pattern = honeycomb
-
-# Velocidades (mm/s)
-perimeter_speed = {preset.print_speed}
-infill_speed = {preset.print_speed}
-travel_speed = {preset.travel_speed}
-first_layer_speed = {preset.initial_layer_speed}
-
-# Suporte (configuraÃ§Ã£o Metaverso)
-support_material = 1
-support_material_style = tree
-support_material_pattern = rectilinear
-support_material_spacing = 2.5
-support_material_threshold = 0
-support_material_auto = 1
-
-# Brim (baseado no preset)
-brim_width = 8
-brim_type = outer_only
-
-# RetraÃ§Ã£o
-retract_length = {preset.retraction_length}
-retract_speed = {preset.retraction_speed}
-
-# Skirt
-skirts = 1
-skirt_distance = 2
-
-[printer_settings]
-# Hardware
-printer_model = {self.config.printer_model}
-
-bed_shape = 0x0,{self.config.bed_size_x}x0,{self.config.bed_size_x}x{self.config.bed_size_y},0x{self.config.bed_size_y}
-max_print_height = {self.config.bed_size_z}
-nozzle_diameter = {self.config.nozzle_diameter}
-
-# Limites
-max_layer_height = 0.3
-min_layer_height = 0.1
-
-[filament_settings]
-# Temperaturas
-temperature = {preset.nozzle_temp}
-first_layer_temperature = {preset.nozzle_temp_initial}
-bed_temperature = {preset.bed_temp}
-first_layer_bed_temperature = {preset.bed_temp_initial}
-
-# Filament overrides (forÃ§a valores)
-filament_temperature = {preset.nozzle_temp}
-filament_temperature_0 = {preset.nozzle_temp}
-filament_bed_temperature = {preset.bed_temp}
-filament_bed_temperature_0 = {preset.bed_temp}
-
-# VentilaÃ§Ã£o
-fan_always_on = 1
-max_fan_speed = {preset.fan_speed}
-min_fan_speed = {preset.fan_speed}
-
-"""
-    
-    def slice_stl(
-        self,
-        stl_path: str,
-        material: str = "PLA",
-        output_path: Optional[str] = None
-    ) -> str:
-        """
-        Fatia arquivo STL usando preset Creality
+            stl_path: Caminho do arquivo STL
+            output_dir: Pasta de saída para G-code
         
-        Args:
-            stl_path: Caminho arquivo STL
-            material: Material (PLA, ABS, PETG, etc.)
-            output_path: Caminho saÃ­da (opcional)
-            
         Returns:
-            Caminho arquivo G-code gerado
-            
-        Raises:
-            FileNotFoundError: Se STL nÃ£o existe
-            RuntimeError: Se slice falhar
+            Caminho do G-code gerado ou None se falhar
         """
         stl_path = Path(stl_path)
         if not stl_path.exists():
-            raise FileNotFoundError(f"STL nÃ£o encontrado: {stl_path}")
+            logger.error(f"STL não encontrado: {stl_path}")
+            return None
         
-        # Carregar preset Creality
-        preset = self.preset_parser.parse_preset(material)
+        # Caminho de saída
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        gcode_path = output_dir / f"{stl_path.stem}.gcode"
         
-        # Gerar config .ini temporÃ¡rio
-        config_content = self._generate_ini_config(preset)
+        logger.info(f"Fatiando: {stl_path.name}")
         
-        # Criar arquivo temporÃ¡rio
-        with tempfile.NamedTemporaryFile(
-            mode='w',
-            suffix='.ini',
-            delete=False,
-            encoding='utf-8'
-        ) as f:
-            f.write(config_content)
-            config_file = f.name
-        
-        # Definir output
-        if output_path is None:
-            output_path = stl_path.with_suffix('.gcode')
-        output_path = Path(output_path)
+        # Comando PrusaSlicer
+        cmd = [
+            self.exe_path,
+            "--slice",
+            str(stl_path),
+            "--output", str(gcode_path),
+            # Configurações inline (preset Metaverso PLA)
+            "--layer-height", "0.2",
+            "--nozzle-diameter", "0.4",
+            "--filament-diameter", "1.75",
+            "--temperature", "220",  # PLA temperatura Creality
+            "--bed-temperature", "60",
+            "--infill-speed", "80",
+            "--perimeter-speed", "60",
+            "--fill-density", "10%",
+            "--fill-pattern", "honeycomb",
+            "--support-material",
+            "--support-material-threshold", "45",
+            "--printer-model", "K1 Max"
+        ]
         
         try:
-            # Executar PrusaSlicer
-            cmd = [
-                self.prusaslicer_path,
-                "--export-gcode",
-                "--load", config_file,
-                "--output", str(output_path),
-                str(stl_path)
-            ]
-            
             result = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
-                check=True,
-                timeout=300
+                timeout=300  # 5 min timeout
             )
             
-            if not output_path.exists():
-                raise RuntimeError(
-                    f"G-code nÃ£o foi gerado.\n"
-                    f"stdout: {result.stdout}\n"
-                    f"stderr: {result.stderr}"
-                )
-            
-            return str(output_path)
-            
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                f"Erro ao executar PrusaSlicer:\n"
-                f"stdout: {e.stdout}\n"
-                f"stderr: {e.stderr}"
-            )
+            if result.returncode == 0 and gcode_path.exists():
+                size_kb = gcode_path.stat().st_size / 1024
+                logger.info(f"✓ G-code gerado: {gcode_path.name} ({size_kb:.1f} KB)")
+                return str(gcode_path)
+            else:
+                logger.error(f"PrusaSlicer falhou:\n{result.stderr}")
+                return None
+                
         except subprocess.TimeoutExpired:
-            raise RuntimeError(f"Timeout ao fatiar (>5min): {stl_path.name}")
-        finally:
-            # Limpar arquivo temporÃ¡rio
-            Path(config_file).unlink(missing_ok=True)
+            logger.error("Timeout no slicing (>5min)")
+            return None
+        except Exception as e:
+            logger.error(f"Erro no slicing: {e}")
+            return None
 
 
-# ========== FUNÃ‡Ã•ES CONVENIENTES ==========
-
-def slice_with_creality_presets(
-    stl_path: str,
-    material: str = "PLA",
-    output_path: Optional[str] = None,
-    prusaslicer_path: str = "prusa-slicer"
-) -> str:
-    """
-    Atalho: fatia STL com valores Creality
+if __name__ == "__main__":
+    # Teste rápido
+    import yaml
     
-    Args:
-        stl_path: Caminho STL
-        material: PLA, ABS, PETG, TPU, etc.
-        output_path: Caminho saÃ­da (opcional)
-        prusaslicer_path: Caminho PrusaSlicer
-        
-    Returns:
-        Caminho G-code gerado
-        
-    Example:
-        >>> gcode = slice_with_creality_presets("model.stl", "PLA")
-        >>> print(f"G-code: {gcode}")
-    """
-    slicer = PrusaSlicerWrapper(prusaslicer_path)
-    return slicer.slice_stl(stl_path, material, output_path)
+    with open("config/config.yaml") as f:
+        cfg = yaml.safe_load(f)
+    
+    slicer = PrusaSlicer(cfg)
+    
+    # Testar com STL existente
+    test_stl = "data/samples/cube.stl"
+    if Path(test_stl).exists():
+        gcode = slicer.slice_stl(test_stl)
+        if gcode:
+            print(f"\n✅ Teste bem-sucedido: {gcode}")
+        else:
+            print("\n❌ Teste falhou")
+    else:
+        print(f"⚠ STL de teste não encontrado: {test_stl}")

@@ -1,5 +1,4 @@
 ﻿#!/usr/bin/env python3
-"""Pipeline GLBâ†’STLâ†’G-codeâ†’ImpressÃ£o - HÃ­brido Otimizado"""
 
 import sys
 import time
@@ -14,7 +13,7 @@ except ImportError as e:
     print(f"MÃ³dulo ausente: {e}. Execute: pip install pyautogui trimesh")
     sys.exit(1)
 
-# ============= CONFIGURAÃ‡ÃƒO =============
+# ============= CONFIGURAÇÃO =============
 PROJECT_ROOT = Path(r"C:\Projetos\metaversoufg-printerinterface")
 SLICER_PATH = r"C:\Program Files\Creality\Creality Print 6.2\CrealityPrint.exe"
 ASSETS_DIR = PROJECT_ROOT / "assets"

@@ -1,15 +1,16 @@
-﻿# metaverso_api_client.py
+﻿# metaverso_client.py
 import requests
 import base64
 import os
 import yaml
+import json
 from pathlib import Path
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 class MetaversoAPIClient:
     def __init__(self, config_path="config/config.yaml"):
-        # Carregar config
+        # Carregar configuração
         with open(config_path) as f:
             cfg = yaml.safe_load(f)
         
@@ -20,7 +21,7 @@ class MetaversoAPIClient:
         
         self.session = requests.Session()
         
-        # Retry automÃ¡tico
+        # Configurar retry automático para falhas temporárias
         retry = Retry(
             total=3, 
             backoff_factor=0.5, 
@@ -32,6 +33,7 @@ class MetaversoAPIClient:
         self.token = None
     
     def authenticate(self):
+        """Autentica na API e armazena token JWT"""
         r = self.session.post(
             f"{self.base_url}/auth/login",
             json=self.credentials,
@@ -43,6 +45,7 @@ class MetaversoAPIClient:
         return True
     
     def get_printable_objects(self, include_file=False):
+        """Busca objetos na fila de impressão"""
         if not self.token:
             self.authenticate()
         
@@ -55,6 +58,7 @@ class MetaversoAPIClient:
         return r.json()
     
     def mark_object_printing(self, object_id):
+        """Marca objeto como 'em impressão'"""
         r = self.session.patch(
             f"{self.base_url}/printer/printing/{object_id}", 
             timeout=self.timeout
@@ -63,6 +67,7 @@ class MetaversoAPIClient:
         return True
     
     def mark_object_printable(self, object_id):
+        """Devolve objeto para fila (marca como 'imprimível')"""
         r = self.session.patch(
             f"{self.base_url}/printer/print/{object_id}", 
             timeout=self.timeout
@@ -71,7 +76,7 @@ class MetaversoAPIClient:
         return True
     
     def get_object_details(self, object_id):
-        """GET /v1/objects/{id} - Retorna metadados completos"""
+        """GET /v1/objects/{id} - Retorna metadados completos do objeto"""
         if not self.token:
             self.authenticate()
         
@@ -83,7 +88,7 @@ class MetaversoAPIClient:
         return r.json()
     
     def save_object_file(self, base64_content, object_id, output_dir=None):
-        """Decodifica base64 e salva arquivo GLB localmente"""
+        """Decodifica base64 e salva arquivo GLB no disco"""
         if output_dir is None:
             output_dir = self.models_dir
         
@@ -97,7 +102,7 @@ class MetaversoAPIClient:
         return file_path if os.path.exists(file_path) else None
     
     def validate_token(self):
-        """GET /v1/auth/validate - Verifica se token Ã© vÃ¡lido"""
+        """GET /v1/auth/validate - Verifica se token JWT é válido"""
         if not self.token:
             return False
         
@@ -111,7 +116,7 @@ class MetaversoAPIClient:
             return False
     
     def health_check(self):
-        """Verifica se API estÃ¡ acessÃ­vel"""
+        """Verifica se API está acessível"""
         try:
             r = self.session.get(
                 self.base_url.replace("/v1", ""), 
@@ -125,29 +130,42 @@ class MetaversoAPIClient:
 if __name__ == "__main__":
     client = MetaversoAPIClient()
     
-    print("[1/5] Autenticando...")
+    print("[1/6] Autenticando...")
     client.authenticate()
-    print("âœ“ Autenticado")
+    print("✓ Autenticado")
     
-    print("\n[2/5] Validando token...")
-    print(f"âœ“ Token {'vÃ¡lido' if client.validate_token() else 'invÃ¡lido'}")
+    print("\n[2/6] Validando token...")
+    print(f"✓ Token {'válido' if client.validate_token() else 'inválido'}")
     
-    print("\n[3/5] Health check API...")
-    print(f"âœ“ API {'acessÃ­vel' if client.health_check() else 'offline'}")
+    print("\n[3/6] Health check API...")
+    print(f"✓ API {'acessível' if client.health_check() else 'offline'}")
     
-    print("\n[4/5] Consultando fila...")
+    print("\n[4/6] Consultando fila...")
     objs = client.get_printable_objects()
-    print(f"âœ“ {len(objs)} objetos na fila")
+    print(f"✓ {len(objs)} objetos na fila")
     
     if objs:
         obj = objs[0]
         obj_id = obj['object_id']
         
-        print(f"\n[5/5] Testando workflow com {obj_id[:8]}...")
+        print(f"\n[5/6] Buscando metadados completos do objeto {obj_id[:8]}...")
+        try:
+            details = client.get_object_details(obj_id)
+            print("\n" + "="*60)
+            print("SCHEMA DE METADADOS DESCOBERTO:")
+            print("="*60)
+            print(json.dumps(details, indent=2, ensure_ascii=False))
+            print("="*60)
+        except Exception as e:
+            print(f"⚠ Erro ao buscar metadados: {e}")
+        
+        print(f"\n[6/6] Testando workflow com {obj_id[:8]}...")
         client.mark_object_printing(obj_id)
-        print("  âœ“ Marcado PRINTING")
+        print("  ✓ Marcado PRINTING")
         client.mark_object_printable(obj_id)
-        print("  âœ“ Devolvido Ã  fila")
+        print("  ✓ Devolvido à fila")
+    else:
+        print("\n⚠ Fila vazia - não foi possível testar metadados")
     
     print("\n" + "="*60)
-    print("Teste concluÃ­do.")
+    print("Teste concluído.")
