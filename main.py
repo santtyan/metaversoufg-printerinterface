@@ -28,7 +28,7 @@ def main_mock_mode(cfg):
     Modo MOCK: Processa GLBs locais sem depender da API
     Útil para testar pipeline quando MinIO está offline
     """
-    from src.printer.printer_pool import PrinterPool
+    from src.k1max.printer_pool import PrinterPool
     
     logger.info("="*60)
     logger.info("MODO MOCK: Processando GLBs locais")
@@ -69,7 +69,7 @@ def main_api_mode(cfg):
     Modo API: Busca objetos do backend Metaverso
     Requer MinIO acessível
     """
-    from src.printer.printer_pool import PrinterPool
+    from src.k1max.printer_pool import PrinterPool
     from src.adapters.metaverso_client import MetaversoAPIClient
     
     logger.info("="*60)

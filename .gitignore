@@ -1,48 +1,10 @@
-﻿
-# Python cache
-__pycache__/
+﻿__pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-
-# Pytest
-.pytest_cache/
-.coverage
-htmlcov/
-
-# MyPy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Ambientes virtuais
 venv*/
-.venv/
-env/
-ENV/
-
-# Credenciais
+.pytest_cache/
 config/config.yaml
-token
-*.token
-
-# Arquivos temporários
-*.stl
-*.gcode
-models/*.stl
-models/*.gcode
-data/output/*.stl
 data/output/*.gcode
+models/*.stl
 *.log
-*.tmp
-
-# IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
