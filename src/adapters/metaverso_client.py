@@ -49,9 +49,16 @@ class MetaversoAPIClient:
         if not self.token:
             self.authenticate()
         
+        params = {"with_file": str(include_file).lower()}
+        
+        # SOLUÇÃO MinIO: usar buffer ao invés de URL
+        if include_file:
+            params["file_method"] = "buffer"
+            params["file_encoding"] = "base64"
+        
         r = self.session.get(
             f"{self.base_url}/printer/printable",
-            params={"with_file": str(include_file).lower()},
+            params=params,
             timeout=self.timeout
         )
         r.raise_for_status()
@@ -96,6 +103,10 @@ class MetaversoAPIClient:
         file_path = Path(output_dir) / f"{object_id}.glb"
         
         try:
+            # Remover prefixo data URL se existir
+            if base64_content.startswith('data:'):
+                base64_content = base64_content.split(',')[1]
+            
             # Decodificar e salvar
             file_data = base64.b64decode(base64_content)
             with open(file_path, "wb") as f:
@@ -142,42 +153,67 @@ class MetaversoAPIClient:
 if __name__ == "__main__":
     client = MetaversoAPIClient()
     
-    print("[1/6] Autenticando...")
+    print("🎯 TESTE: Download GLB via file_method=buffer")
+    print("="*60)
+    
+    print("[1/7] Autenticando...")
     client.authenticate()
     print("✓ Autenticado")
     
-    print("\n[2/6] Validando token...")
+    print("\n[2/7] Validando token...")
     print(f"✓ Token {'válido' if client.validate_token() else 'inválido'}")
     
-    print("\n[3/6] Health check API...")
+    print("\n[3/7] Health check API...")
     print(f"✓ API {'acessível' if client.health_check() else 'offline'}")
     
-    print("\n[4/6] Consultando fila...")
-    objs = client.get_printable_objects()
+    print("\n[4/7] Consultando fila SEM arquivo...")
+    objs = client.get_printable_objects(include_file=False)
     print(f"✓ {len(objs)} objetos na fila")
     
-    if objs:
-        obj = objs[0]
-        obj_id = obj['object_id']
+    print("\n[5/7] Consultando fila COM arquivo (buffer)...")
+    try:
+        objs_with_file = client.get_printable_objects(include_file=True)
+        print(f"✓ {len(objs_with_file)} objetos retornados com arquivo")
         
-        print(f"\n[5/6] Buscando metadados completos do objeto {obj_id[:8]}...")
-        try:
-            details = client.get_object_details(obj_id)
-            print("\n" + "="*60)
-            print("SCHEMA DE METADADOS DESCOBERTO:")
-            print("="*60)
-            print(json.dumps(details, indent=2, ensure_ascii=False))
-            print("="*60)
-        except Exception as e:
-            print(f"⚠ Erro ao buscar metadados: {e}")
-        
-        print(f"\n[6/6] Testando workflow com {obj_id[:8]}...")
-        client.mark_object_printing(obj_id)
-        print("  ✓ Marcado PRINTING")
-        client.mark_object_printable(obj_id)
-        print("  ✓ Devolvido à fila")
-    else:
-        print("\n⚠ Fila vazia - não foi possível testar metadados")
+        if objs_with_file:
+            obj = objs_with_file[0]
+            object_id = obj['object_id']
+            object_file = obj.get('object_file', '')
+            
+            print(f"\n[6/7] Analisando primeiro objeto: {object_id[:8]}...")
+            print(f"Campo object_file: {len(object_file)} chars")
+            print(f"Primeiros 100 chars: {object_file[:100]}")
+            
+            if object_file:
+                print("\n[7/7] Salvando GLB...")
+                glb_path = client.save_object_file(object_file, object_id)
+                
+                if glb_path:
+                    size_mb = Path(glb_path).stat().st_size / 1024 / 1024
+                    print(f"✅ SUCESSO! GLB salvo: {glb_path}")
+                    print(f"   Tamanho: {size_mb:.2f} MB")
+                    
+                    # Marcar como printing para teste
+                    client.mark_object_printing(object_id)
+                    print(f"✓ Objeto marcado como PRINTING")
+                    
+                    # Devolver para fila
+                    client.mark_object_printable(object_id)
+                    print(f"✓ Objeto devolvido à fila")
+                    
+                    print(f"\n🎯 PIPELINE DESBLOQUEADO!")
+                    print(f"GLB → STL → G-code → Impressão PRONTO!")
+                else:
+                    print("❌ Falha ao salvar/validar GLB")
+            else:
+                print("⚠ object_file vazio")
+        else:
+            print("⚠ Nenhum objeto na fila")
+            
+    except Exception as e:
+        print(f"❌ Erro: {e}")
+        import traceback
+        traceback.print_exc()
     
     print("\n" + "="*60)
     print("Teste concluído.")
